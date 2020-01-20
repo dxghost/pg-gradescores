@@ -60,21 +60,24 @@
 
 ---
 
+<!-- TODO Add Course table -->
+
 ### Exam
 | attribute         | domain      | pk  | fk  | unique | null | constraint               |
 | ----------------- | ----------- | --- | --- | ------ | ---- | ------------------------ |
 | id                | serial      | x   |     | x      |      |                          |
+| title             | varchar(60) |     |     |        | x    |                          |
 | teacher_national# | int         |     | x   |        | x    |                          |
 | course_id         | int         |     | x   |        |      |                          |
 | exam_type         | varchar(10) |     |     |        |      | in('mid','final','quiz') |
 
 
 ### Subject
-| attribute        | domain      | pk  | fk  | unique | null | constraint |
-| ---------------- | ----------- | --- | --- | ------ | ---- | ---------- |
-| id               | serial      | x   |     | x      |      |            |
-| category         | varchar(30) |     |     |        |      |            |
-| scientific_field | varchar(30) |     |     |        | x    |            |
+| attribute | domain       | pk  | fk  | unique | null | constraint |
+| --------- | ------------ | --- | --- | ------ | ---- | ---------- |
+| id        | serial       | x   |     | x      |      |            |
+| category  | varchar(100) |     |     |        |      |            |
+| course_id | int          |     | x   |        | x    |            |
 
 
 ---
@@ -86,7 +89,7 @@
 | question_text | varcahar(300) |     |     |        |      |            |
 | answer_text   | varchar(500)  |     |     |        | x    |            |
 | comments      | varchar(200)  |     |     |        | x    |            |
-| made_by       | int           |     | x   | x      | x    |            |
+| issued_by     | int           |     | x   |        | x    |            |
 
 ---
 
@@ -107,13 +110,14 @@
 
 
 ---
-
+<!-- TODO add a table for students to submit answers -->
+<!-- TODO add support for 4-choice answers -->
 ### Exam-Evaluation
-| attribute    | domain | pk  | fk  | unique | null | constraint |
-| ------------ | ------ | --- | --- | ------ | ---- | ---------- |
-| exam_id      | int    | x   | x   | x      |      |            |
-| evaluated_by | int    |     |     |        |      |            |
-| student_id   | int    | x   | x   | x      |      |            |
-
+| attribute   | domain | pk  | fk  | unique | null | constraint |
+| ----------- | ------ | --- | --- | ------ | ---- | ---------- |
+| exam_id     | int    | x   | x   | x      |      |            |
+| reviewed_by | int    |     |     |        |      |            |
+| student_id  | int    | x   | x   | x      |      |            |
+| points      | int    |     |     |        |      |            |
 
 **Aggregation relations like parental observe affect the database design in creating views**
