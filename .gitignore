@@ -227,5 +227,6 @@ dmypy.json
 .history
 
 .idea/
+bin/
 # End of https://www.gitignore.io/api/go,python,jetbrains,visualstudiocode
 
