@@ -69,6 +69,9 @@
 | teacher_national# | int         |     | x   |        | x    |                          |
 | course_id         | int         |     | x   |        |      |                          |
 | exam_type         | varchar(10) |     |     |        |      | in('mid','final','quiz') |
+| points            | int         |     |     |        | x    |                          |
+
+**`points` is a read-only field which is incremented after insertion on examquestion**
 
 ---
 
