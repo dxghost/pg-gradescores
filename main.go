@@ -5,18 +5,23 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"log"
+	"github.com/fatih/color"
 )
+
+var Green = color.New(color.FgHiGreen).SprintFunc()
+var Red = color.New(color.FgRed).SprintFunc()
+var Yellow = color.New(color.FgHiYellow).SprintFunc()
 
 func main() {
 
 	db, err := connectPG("postgres", "dx", 5432, "127.0.0.1")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(Red(err))
 	}
 
 	err = createTables(db)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(Red(err))
 	}
 
 	// rows, err := db.Query("SELECT * FROM Person")
@@ -38,12 +43,13 @@ func main() {
 }
 
 func connectPG(username string, password string, port int, host string) (*sql.DB, error) {
-	log.Println(fmt.Sprintf("Connecting to postgres with username '%s' on '%s:%d'.", username, host, port))
+	log.Println(Yellow(fmt.Sprintf("Connecting to postgres with username '%s' on '%s:%d'.", username, host, port)))
 	connStr := fmt.Sprintf("user=%s  host=%s port=%d password=%s database=gradescores", username, host, port, password)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, err
 	}
+	log.Println(Green("Connected Successfully."))
 	return db, nil
 }
 
@@ -52,7 +58,7 @@ func createTables(db *sql.DB) error {
 	// TODO add not nulls
 	// TODO Check table design
 	// PERSON
-	log.Println("Creating table 'Person'.")
+	log.Println(Yellow("Creating table 'Person'."))
 	_, err := db.Query(`Create Table Person(
 			first_name varchar(20),
 			last_name varchar(40),
@@ -64,7 +70,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// STUDENT
-	log.Println("Creating table 'Student'.")
+	log.Println(Yellow("Creating table 'Student'."))
 	_, err = db.Query(`Create Table Student(
 			national_no int primary key references Person(national_no),
 			educational_grade varchar(10)
@@ -74,7 +80,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// TEACHER
-	log.Println("Creating table 'Teacher'.")
+	log.Println(Yellow("Creating table 'Teacher'."))
 	_, err = db.Query(`Create Table Teacher(
 			national_no int primary key references Person(national_no),
 			degrees varchar(200)
@@ -84,7 +90,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// SCHOOL
-	log.Println("Creating table 'School'.")
+	log.Println(Yellow("Creating table 'School'."))
 	_, err = db.Query(`Create Table School(
 			id serial primary key,
 			manager_id int references Person(national_no),
@@ -95,7 +101,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// SCHOOLGRADE
-	log.Println("Creating table 'SchoolGrade'.")
+	log.Println(Yellow("Creating table 'SchoolGrade'."))
 	_, err = db.Query(`Create Table SchoolGrade(
 			school_id int references School(id),
 			grades_no int,
@@ -106,7 +112,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// SCHOOLSTAFF
-	log.Println("Creating table 'SchoolStaff'.")
+	log.Println(Yellow("Creating table 'SchoolStaff'."))
 	_, err = db.Query(`Create Table SchoolStaff(
 			school_id int references School(id),
 			person_id int references Person(national_no),
@@ -118,7 +124,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// SCHOOLTEACHER
-	log.Println("Creating table 'SchoolTeacher'.")
+	log.Println(Yellow("Creating table 'SchoolTeacher'."))
 	_, err = db.Query(`Create Table SchoolTeacher(
 			teacher_national_no int references teacher(national_no),
 			school_id int references School(id),
@@ -129,7 +135,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// COURSE
-	log.Println("Creating table 'Course'.")
+	log.Println(Yellow("Creating table 'Course'."))
 	_, err = db.Query(`Create Table Course(
 			id serial primary key,
 			title varchar(40)
@@ -138,8 +144,21 @@ func createTables(db *sql.DB) error {
 		return err
 	}
 
+	// FOURCHOICE
+	log.Println(Yellow("Creating table 'FourChoice'."))
+	_, err = db.Query(`Create Table FourChoice(
+			id serial primary key,
+			first_choice varchar(100),
+			second_choice varchar(100),
+			third_choice varchar(100),
+			fourth_choice varchar(100)
+		)`)
+	if err != nil {
+		return err
+	}
+
 	// EXAM
-	log.Println("Creating table 'Exam'.")
+	log.Println(Yellow("Creating table 'Exam'."))
 	_, err = db.Query(`Create Table Exam(
 			id serial primary key,
 			title varchar(60),
@@ -152,7 +171,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// Subject
-	log.Println("Creating table 'Subject'.")
+	log.Println(Yellow("Creating table 'Subject'."))
 	_, err = db.Query(`Create Table Subject(
 			id serial primary key,
 			category varchar(100),
@@ -163,14 +182,15 @@ func createTables(db *sql.DB) error {
 	}
 
 	// QUESTION
-	// TODO add 4choice type question support
-	log.Println("Creating table 'Question'.")
+	log.Println(Yellow("Creating table 'Question'."))
 	_, err = db.Query(`Create Table Question(
 			id serial primary key,
 			question_text varchar(300),
 			answer_text varchar(500),
 			comments varchar(200),
-			issued_by int references Teacher(national_no)
+			issued_by int references Teacher(national_no),
+			choices int references FourChoice(id),
+			correct_choice int
 		)`)
 	if err != nil {
 		return err
@@ -178,20 +198,34 @@ func createTables(db *sql.DB) error {
 
 	// EXAMQUESTION
 	// TODO add assertion : total points of an exam shouldnt exceed 20
-	log.Println("Creating table 'ExamQuestion'.")
+	log.Println(Yellow("Creating table 'ExamQuestion'."))
 	_, err = db.Query(`Create Table ExamQuestion(
+			id serial primary key,
 			exam_id int references Exam(id),
 			question_id int references Question(id),
-			points int,
-			primary key(exam_id, question_id)
+			points int
+			
 		)`)
 	if err != nil {
 		return err
 	}
 
-	// TODO add table for students to submit answers containing evaluator and points earned
+	// SUBMISSION
+	log.Println(Yellow("Creating table 'Submission'."))
+	_, err = db.Query(`Create Table Submission(
+			eq_id int references ExamQuestion(id),
+			student_no int references Student(national_no),
+			examiner_no int references Teacher(national_no),
+			points_earned int
+			
+		)`)
+	if err != nil {
+		return err
+	}
+
+
 	// ExamEvaluation
-	log.Println("Creating table 'ExamEvaluation'.")
+	log.Println(Yellow("Creating table 'ExamEvaluation'."))
 	_, err = db.Query(`Create Table ExamEvaluation(
 			exam_id int references Exam(id),
 			reviewed_by int references Teacher(national_no),
@@ -202,5 +236,11 @@ func createTables(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
+
+	log.Println(Green("All tables created scuccessfully"))
 	return nil
 }
+// TODO add trigger after submitting a point to a question score for
+//  the coresponding exam gets updated
+
+// TODO add trigger for summing up students exam points
