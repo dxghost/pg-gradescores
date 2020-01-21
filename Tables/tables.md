@@ -61,6 +61,15 @@
 
 ---
 
+### StudentTeacherCourse
+| attribute  | domain | pk  | fk  | unique | null | constraint |
+| ---------- | ------ | --- | --- | ------ | ---- | ---------- |
+| student_no | int    | x   | x   |        |      |            |
+| teacher_no | int    | x   | x   |        |      |            |
+| course_id  | int    | x   | x   |        |      |            |
+
+---
+
 ### Exam
 | attribute         | domain      | pk  | fk  | unique | null | constraint               |
 | ----------------- | ----------- | --- | --- | ------ | ---- | ------------------------ |
@@ -71,7 +80,7 @@
 | exam_type         | varchar(10) |     |     |        |      | in('mid','final','quiz') |
 | points            | int         |     |     |        | x    |                          |
 
-**`points` is a read-only field which is incremented after insertion on examquestion**
+****`points`** is a read-only field which is incremented after insertion on examquestion**
 
 ---
 
@@ -111,12 +120,15 @@
 
 ---
 ### Submission
-| attribute     | domain | pk  | fk  | unique | null | constraint |
-| ------------- | ------ | --- | --- | ------ | ---- | ---------- |
-| eq_id         | int    | x   | x   |        |      |            |
-| student_no    | int    | x   | x   |        |      |            |
-| points_earned | int    |     |     |        | x    |            |
-| examiner_no   | int    |     | x   |        |      |            |
+| attribute     | domain       | pk  | fk  | unique | null | constraint |
+| ------------- | ------------ | --- | --- | ------ | ---- | ---------- |
+| eq_id         | int          | x   | x   |        |      |            |
+| student_no    | int          | x   | x   |        |      |            |
+| points_earned | int          |     |     |        | x    |            |
+| examiner_no   | int          |     | x   |        |      |            |
+| answer        | varchar(500) |     |     |        |      |            |
+| answer_choice | int          |     |     |        |      |            |
+
 
 ---
 
