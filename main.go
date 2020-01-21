@@ -1,16 +1,18 @@
 package main
+
 // TODO update ERD
 import (
 	"database/sql"
 	"fmt"
+	"github.com/fatih/color"
 	_ "github.com/lib/pq"
 	"log"
-	"github.com/fatih/color"
 )
 
 var Green = color.New(color.FgHiGreen).SprintFunc()
 var Red = color.New(color.FgRed).SprintFunc()
 var Yellow = color.New(color.FgHiYellow).SprintFunc()
+
 
 func main() {
 
@@ -20,6 +22,11 @@ func main() {
 	}
 
 	err = createTables(db)
+	if err != nil {
+		log.Fatal(Red(err))
+	}
+
+	err = createAssertions(db)
 	if err != nil {
 		log.Fatal(Red(err))
 	}
@@ -53,10 +60,35 @@ func connectPG(username string, password string, port int, host string) (*sql.DB
 	return db, nil
 }
 
+func createAssertions(db *sql.DB) error {
+	// submitted question points earned shouldnt exceed question points
+	log.Println(Yellow("Creating earned points constraint."))
+	_, err := db.Query(`
+	CREATE OR REPLACE FUNCTION earned_points_check()
+		RETURNS trigger AS
+		$BODY$
+		declare
+		maximum_points int;
+		BEGIN
+		select points from ExamQuestion where id = old.eq_id limit 1 into maximum_points;
+		IF NEW.points_earned > maximum_points THEN
+			raise exception 'input value exceeds maximum achievable points.';
+		END IF;
+		RETURN NEW;
+		END;
+		$BODY$ language plpgsql;
+
+	CREATE TRIGGER earned_points_trigger AFTER update ON submission
+		FOR EACH ROW EXECUTE PROCEDURE earned_points_check();
+	`)
+	if err != nil {
+		return err
+	}
+	log.Println(Green("All Assertions created scuccessfully"))
+	return nil
+}
+
 func createTables(db *sql.DB) error {
-	// TODO add constraints
-	// TODO add not nulls
-	// TODO Check table design
 
 	// PERSON
 	log.Println(Yellow("Creating table 'Person'."))
@@ -157,6 +189,7 @@ func createTables(db *sql.DB) error {
 			teacher_national_no int references Teacher(national_no),
 			course_id int references Course(id) not null,
 			exam_type varchar(10),
+			points int,
 			check(exam_type in ('mid','final','quiz'))
 		)`)
 	if err != nil {
@@ -179,7 +212,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// EXAMQUESTION
-	// TODO add assertion : total points of an exam shouldnt exceed 20
+	// TODO add trigger: increment exam points by question points
 	log.Println(Yellow("Creating table 'ExamQuestion'."))
 	_, err = db.Query(`Create Table ExamQuestion(
 			id serial primary key,
@@ -207,7 +240,6 @@ func createTables(db *sql.DB) error {
 		return err
 	}
 
-
 	// ExamEvaluation
 	log.Println(Yellow("Creating table 'ExamEvaluation'."))
 	_, err = db.Query(`Create Table ExamEvaluation(
@@ -224,6 +256,7 @@ func createTables(db *sql.DB) error {
 	log.Println(Green("All tables created scuccessfully"))
 	return nil
 }
+
 // TODO add trigger after submitting a point to a question score for
 //  the coresponding exam gets updated
 
