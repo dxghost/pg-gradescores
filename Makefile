@@ -6,5 +6,5 @@ PACKAGES=utils
 all: build
 
 build:
-		@go build -o ./bin/$(TARGET) -mod
+		@go build -o ./bin/$(TARGET) -mod=vendor
 

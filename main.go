@@ -4,7 +4,7 @@ package main
 import (
 
 	"log"
-	utils "pg-gradescores/utils"
+	utils "github.com/dxghost/pg-gradescores/utils"
 )
 
 
