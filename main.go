@@ -9,30 +9,30 @@ import (
 	"log"
 )
 
-var Green = color.New(color.FgHiGreen).SprintFunc()
-var Red = color.New(color.FgRed).SprintFunc()
-var Yellow = color.New(color.FgHiYellow).SprintFunc()
+var green = color.New(color.FgHiGreen).SprintFunc()
+var red = color.New(color.FgRed).SprintFunc()
+var yellow = color.New(color.FgHiYellow).SprintFunc()
 
 func main() {
 
 	db, err := connectPG("postgres", "dx", 5432, "127.0.0.1")
 	if err != nil {
-		log.Fatal(Red(err))
+		log.Fatal(red(err))
 	}
 
 	err = createTables(db)
 	if err != nil {
-		log.Fatal(Red(err))
+		log.Fatal(red(err))
 	}
 
 	err = createAssertions(db)
 	if err != nil {
-		log.Fatal(Red(err))
+		log.Fatal(red(err))
 	}
 
 	err = createTriggers(db)
 	if err != nil {
-		log.Fatal(Red(err))
+		log.Fatal(red(err))
 	}
 
 	// rows, err := db.Query("SELECT * FROM Person")
@@ -54,19 +54,19 @@ func main() {
 }
 
 func connectPG(username string, password string, port int, host string) (*sql.DB, error) {
-	log.Println(Yellow(fmt.Sprintf("Connecting to postgres with username '%s' on '%s:%d'.", username, host, port)))
+	log.Println(yellow(fmt.Sprintf("Connecting to postgres with username '%s' on '%s:%d'.", username, host, port)))
 	connStr := fmt.Sprintf("user=%s  host=%s port=%d password=%s database=gradescores", username, host, port, password)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, err
 	}
-	log.Println(Green("Connected Successfully."))
+	log.Println(green("Connected Successfully."))
 	return db, nil
 }
 
 func createAssertions(db *sql.DB) error {
 	// submitted question points earned shouldnt exceed question points
-	log.Println(Yellow("Creating earned points constraint."))
+	log.Println(yellow("Creating earned points constraint."))
 	_, err := db.Query(`
 	CREATE OR REPLACE FUNCTION earned_points_check()
 		RETURNS trigger AS
@@ -88,13 +88,13 @@ func createAssertions(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	log.Println(Green("All assertions created scuccessfully."))
+	log.Println(green("All assertions created scuccessfully."))
 	return nil
 }
 
 func createTriggers(db *sql.DB) error {
 	// update exam's total points whenever a new question is added to exam
-	log.Println(Yellow("Creating exam total points incrementor trigger."))
+	log.Println(yellow("Creating exam total points incrementor trigger."))
 	_, err := db.Query(`
 	CREATE OR REPLACE FUNCTION increment_exam_points()
 	RETURNS trigger AS
@@ -115,7 +115,7 @@ func createTriggers(db *sql.DB) error {
 	}
 
 	// Update examevaluation point for student which its tow in submission is examined
-	log.Println(Yellow("Creating examevaluation calculator trigger."))
+	log.Println(yellow("Creating examevaluation calculator trigger."))
 	_, err = db.Query(`
 	CREATE OR REPLACE FUNCTION calculate_points()
 	RETURNS trigger AS
@@ -139,14 +139,14 @@ func createTriggers(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	log.Println(Green("All triggers created successfully."))
+	log.Println(green("All triggers created successfully."))
 	return nil
 }
 
 func createTables(db *sql.DB) error {
 
 	// PERSON
-	log.Println(Yellow("Creating table 'Person'."))
+	log.Println(yellow("Creating table 'Person'."))
 	_, err := db.Query(`Create Table Person(
 		first_name varchar(20) not null,
 		last_name varchar(40) not null,
@@ -159,7 +159,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// STUDENT
-	log.Println(Yellow("Creating table 'Student'."))
+	log.Println(yellow("Creating table 'Student'."))
 	_, err = db.Query(`Create Table Student(
 			national_no int primary key references Person(national_no),
 			educational_grade int not null check(educational_grade > 0 and educational_grade < 13)
@@ -169,7 +169,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// TEACHER
-	log.Println(Yellow("Creating table 'Teacher'."))
+	log.Println(yellow("Creating table 'Teacher'."))
 	_, err = db.Query(`Create Table Teacher(
 			national_no int primary key references Person(national_no),
 			degrees varchar(200)
@@ -179,7 +179,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// SCHOOL
-	log.Println(Yellow("Creating table 'School'."))
+	log.Println(yellow("Creating table 'School'."))
 	_, err = db.Query(`Create Table School(
 			id serial primary key,
 			name varchar(50) not null,
@@ -191,7 +191,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// SCHOOLGRADE
-	log.Println(Yellow("Creating table 'SchoolGrade'."))
+	log.Println(yellow("Creating table 'SchoolGrade'."))
 	_, err = db.Query(`
 	Create Table SchoolGrade(
 				school_id int references School(id),
@@ -203,7 +203,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// SCHOOLTEACHER
-	log.Println(Yellow("Creating table 'SchoolTeacher'."))
+	log.Println(yellow("Creating table 'SchoolTeacher'."))
 	_, err = db.Query(`Create Table SchoolTeacher(
 			teacher_national_no int references teacher(national_no),
 			school_id int references School(id),
@@ -214,7 +214,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// COURSE
-	log.Println(Yellow("Creating table 'Course'."))
+	log.Println(yellow("Creating table 'Course'."))
 	_, err = db.Query(`Create Table Course(
 			id serial primary key,
 			title varchar(40) not null
@@ -224,7 +224,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// FOURCHOICE
-	log.Println(Yellow("Creating table 'FourChoice'."))
+	log.Println(yellow("Creating table 'FourChoice'."))
 	_, err = db.Query(`Create Table FourChoice(
 			id serial primary key,
 			first_choice varchar(100),
@@ -235,9 +235,21 @@ func createTables(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	// TODO add table for course-student-teacher
+
+	// STUDENTTEACHERCOURSE
+	log.Println(yellow("Creating table 'StudentTeacherCourse'."))
+	_, err = db.Query(`Create Table StudentTeacherCourse(
+			student_no int references Student(national_no),
+			teacher_no int references Teacher(national_no),
+			course_id int references Course(id),
+			primary key(student_no, teacher_no, course_id)
+		)`)
+	if err != nil {
+		return err
+	}
+
 	// EXAM
-	log.Println(Yellow("Creating table 'Exam'."))
+	log.Println(yellow("Creating table 'Exam'."))
 	_, err = db.Query(`Create Table Exam(
 			id serial primary key,
 			title varchar(60),
@@ -252,7 +264,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// QUESTION
-	log.Println(Yellow("Creating table 'Question'."))
+	log.Println(yellow("Creating table 'Question'."))
 	_, err = db.Query(`Create Table Question(
 			id serial primary key,
 			question_text varchar(300) not null,
@@ -267,7 +279,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// EXAMQUESTION
-	log.Println(Yellow("Creating table 'ExamQuestion'."))
+	log.Println(yellow("Creating table 'ExamQuestion'."))
 	_, err = db.Query(`Create Table ExamQuestion(
 			id serial primary key,
 			exam_id int references Exam(id) not null,
@@ -281,13 +293,14 @@ func createTables(db *sql.DB) error {
 	}
 
 	// SUBMISSION
-	// TODO add answer field
-	log.Println(Yellow("Creating table 'Submission'."))
+	log.Println(yellow("Creating table 'Submission'."))
 	_, err = db.Query(`Create Table Submission(
 			eq_id int references ExamQuestion(id),
 			student_no int references Student(national_no),
 			examiner_no int references Teacher(national_no),
 			points_earned int,
+			answer varchar(500) not null,
+			answer_choice int,
 			primary key(eq_id, student_no)
 			
 		)`)
@@ -296,7 +309,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// ExamEvaluation
-	log.Println(Yellow("Creating table 'ExamEvaluation'."))
+	log.Println(yellow("Creating table 'ExamEvaluation'."))
 	_, err = db.Query(`Create Table ExamEvaluation(
 			exam_id int references Exam(id),
 			reviewed_by int references Teacher(national_no),
@@ -308,6 +321,6 @@ func createTables(db *sql.DB) error {
 		return err
 	}
 
-	log.Println(Green("All tables created scuccessfully"))
+	log.Println(green("All tables created scuccessfully"))
 	return nil
 }
