@@ -60,7 +60,14 @@
 
 ---
 
-<!-- TODO Add Course table -->
+### Course
+| attribute | domain      | pk  | fk  | unique | null | constraint |
+| --------- | ----------- | --- | --- | ------ | ---- | ---------- |
+| id        | serial      | x   |     | x      |      |            |
+| title     | varchar(40) |     |     | x      |      |            |
+**implemented in order to be compatible with additional requirements**
+
+---
 
 ### Exam
 | attribute         | domain      | pk  | fk  | unique | null | constraint               |
@@ -79,17 +86,29 @@
 | category  | varchar(100) |     |     |        |      |            |
 | course_id | int          |     | x   |        | x    |            |
 
+---
+
+### FourChoices
+| attribute     | domain       | pk  | fk  | unique | null | constraint |
+| ------------- | ------------ | --- | --- | ------ | ---- | ---------- |
+| id            | serial       | x   |     | x      |      |            |
+| first_choice  | varchar(100) |     |     |        |      |            |
+| second_choice | varchar(100) |     |     |        |      |            |
+| third_choice  | varchar(100) |     |     |        |      |            |
+| fourth_choice | varchar(100) |     |     |        |      |            |
 
 ---
 
 ### Question
-| attribute     | domain        | pk  | fk  | unique | null | constraint |
-| ------------- | ------------- | --- | --- | ------ | ---- | ---------- |
-| id            | serial        | x   |     | x      |      |            |
-| question_text | varcahar(300) |     |     |        |      |            |
-| answer_text   | varchar(500)  |     |     |        | x    |            |
-| comments      | varchar(200)  |     |     |        | x    |            |
-| issued_by     | int           |     | x   |        | x    |            |
+| attribute      | domain        | pk  | fk  | unique | null | constraint |
+| -------------- | ------------- | --- | --- | ------ | ---- | ---------- |
+| id             | serial        | x   |     | x      |      |            |
+| question_text  | varcahar(300) |     |     |        |      |            |
+| answer_text    | varchar(500)  |     |     |        | x    |            |
+| comments       | varchar(200)  |     |     |        | x    |            |
+| issued_by      | int           |     | x   |        | x    |            |
+| choices        | int           |     | x   | x      | x    |            |
+| correct_choice | int           |     |     |        | x    |            |
 
 ---
 
@@ -104,14 +123,23 @@
 ### Exam-Question
 | attribute   | domain | pk  | fk  | unique | null | constraint     |
 | ----------- | ------ | --- | --- | ------ | ---- | -------------- |
-| exam_id     | int    | x   | x   | x      |      |                |
-| question_id | int    | x   | x   | x      |      |                |
+| id          | serial | x   |     | x      |      |                |
+| exam_id     | int    |     | x   | x      |      |                |
+| question_id | int    |     | x   | x      |      |                |
 | points      | int    |     |     |        |      | in range(0:20) |
-
+**exam_id and question_id are unique together**
 
 ---
-<!-- TODO add a table for students to submit answers -->
-<!-- TODO add support for 4-choice answers -->
+### Submission
+| attribute     | domain | pk  | fk  | unique | null | constraint     |
+| ------------- | ------ | --- | --- | ------ | ---- | -------------- |
+| eq_id         | int    | x   | x   |        |      |                |
+| student_no    | int    | x   | x   |        |      | in range(0:20) |
+| points_earned | int    |     |     |        | x    |                |
+| examiner_no   | int    |     | x   |        |      |                |
+
+---
+
 ### Exam-Evaluation
 | attribute   | domain | pk  | fk  | unique | null | constraint |
 | ----------- | ------ | --- | --- | ------ | ---- | ---------- |
