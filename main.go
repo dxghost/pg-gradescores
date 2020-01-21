@@ -13,7 +13,6 @@ var Green = color.New(color.FgHiGreen).SprintFunc()
 var Red = color.New(color.FgRed).SprintFunc()
 var Yellow = color.New(color.FgHiYellow).SprintFunc()
 
-
 func main() {
 
 	db, err := connectPG("postgres", "dx", 5432, "127.0.0.1")
@@ -27,6 +26,11 @@ func main() {
 	}
 
 	err = createAssertions(db)
+	if err != nil {
+		log.Fatal(Red(err))
+	}
+
+	err = createTriggers(db)
 	if err != nil {
 		log.Fatal(Red(err))
 	}
@@ -84,7 +88,58 @@ func createAssertions(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	log.Println(Green("All Assertions created scuccessfully"))
+	log.Println(Green("All assertions created scuccessfully."))
+	return nil
+}
+
+func createTriggers(db *sql.DB) error {
+	// update exam's total points whenever a new question is added to exam
+	log.Println(Yellow("Creating exam total points incrementor trigger."))
+	_, err := db.Query(`
+	CREATE OR REPLACE FUNCTION increment_exam_points()
+	RETURNS trigger AS
+	$BODY$
+	declare
+	BEGIN
+		update exam set points = points + new.points where id = new.exam_id;
+		return new;
+	END;
+	
+	$BODY$ language plpgsql;
+	
+	CREATE TRIGGER increment_exam_points_trigger AFTER insert ON examquestion
+	FOR EACH ROW EXECUTE PROCEDURE increment_exam_points();
+	`)
+	if err != nil {
+		return err
+	}
+
+	// Update examevaluation point for student which its tow in submission is examined
+	log.Println(Yellow("Creating examevaluation calculator trigger."))
+	_, err = db.Query(`
+	CREATE OR REPLACE FUNCTION calculate_points()
+	RETURNS trigger AS
+	$BODY$
+	declare
+		examid int;
+		total int;
+	BEGIN
+		select exam_id from examquestion where id = old.eq_id into examid;
+		delete from examevaluation where exam_id = examid;
+		select sum(points_earned) from submission join examquestion on submission.eq_id = examquestion.id where student_no = old.student_no and exam_id = examid into total;
+		insert into examevaluation values(examid,null,old.student_no,total);
+		return new;
+	END;
+	
+	$BODY$ language plpgsql;
+	
+	CREATE TRIGGER calculate_points_trigger AFTER update ON submission
+	FOR EACH ROW EXECUTE PROCEDURE calculate_points();
+	`)
+	if err != nil {
+		return err
+	}
+	log.Println(Green("All triggers created successfully."))
 	return nil
 }
 
@@ -180,7 +235,7 @@ func createTables(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-
+	// TODO add table for course-student-teacher
 	// EXAM
 	log.Println(Yellow("Creating table 'Exam'."))
 	_, err = db.Query(`Create Table Exam(
@@ -189,7 +244,7 @@ func createTables(db *sql.DB) error {
 			teacher_national_no int references Teacher(national_no),
 			course_id int references Course(id) not null,
 			exam_type varchar(10),
-			points int,
+			points int default 0,
 			check(exam_type in ('mid','final','quiz'))
 		)`)
 	if err != nil {
@@ -212,7 +267,6 @@ func createTables(db *sql.DB) error {
 	}
 
 	// EXAMQUESTION
-	// TODO add trigger: increment exam points by question points
 	log.Println(Yellow("Creating table 'ExamQuestion'."))
 	_, err = db.Query(`Create Table ExamQuestion(
 			id serial primary key,
@@ -227,6 +281,7 @@ func createTables(db *sql.DB) error {
 	}
 
 	// SUBMISSION
+	// TODO add answer field
 	log.Println(Yellow("Creating table 'Submission'."))
 	_, err = db.Query(`Create Table Submission(
 			eq_id int references ExamQuestion(id),
@@ -256,8 +311,3 @@ func createTables(db *sql.DB) error {
 	log.Println(Green("All tables created scuccessfully"))
 	return nil
 }
-
-// TODO add trigger after submitting a point to a question score for
-//  the coresponding exam gets updated
-
-// TODO add trigger for summing up students exam points
