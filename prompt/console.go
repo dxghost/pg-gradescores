@@ -2,10 +2,13 @@ package prompt
 
 import (
 	"database/sql"
-	"log"
 	"fmt"
 	"github.com/dxghost/pg-gradescores/utils"
+	"log"
+	"strconv"
 	"strings"
+	"os"
+    "github.com/jedib0t/go-pretty/table"
 )
 
 type Prompt struct {
@@ -38,20 +41,27 @@ func (p *Prompt) Start() {
 			if err != nil {
 				log.Fatal(err)
 			}
+
 			var nno int
 			var fname string
 			var lname string
 			var edgrade int
+
+			t := table.NewWriter()
+			t.SetOutputMirror(os.Stdout)
+			t.AppendHeader(table.Row{"national number", "first name", "last name", "educational grade"})
+
 			for rows.Next() {
 				err = rows.Scan(&nno, &fname, &lname, &edgrade)
 				if err != nil {
 					log.Fatal(err)
 				}
-				// TODO table design (spacing)
 				// TODO migrate query functions
-				fmt.Println(nno, fname, lname, edgrade)
-			}
+				t.AppendRow([]interface{}{strconv.Itoa(nno), fname, lname, strconv.Itoa(edgrade)})
 
+			}
+			t.Render()
+			
 		case "Teachers":
 			fmt.Println(utils.Red("Teaches"))
 		default:
