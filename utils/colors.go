@@ -8,3 +8,5 @@ var Green = color.New(color.FgHiGreen).SprintFunc()
 var Red = color.New(color.FgRed).SprintFunc()
 // Yellow color
 var Yellow = color.New(color.FgHiYellow).SprintFunc()
+// Cyan color
+var Cyan = color.New(color.FgCyan).SprintFunc()
