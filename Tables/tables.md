@@ -11,6 +11,7 @@
 ### School
 | attribute  | domain       | pk  | fk  | unique | null | constraint |
 | ---------- | ------------ | --- | --- | ------ | ---- | ---------- |
+| name       | varchar(50)  |     |     |        |      |            |
 | address    | varchar(300) |     |     |        |      |            |
 | id         | serial       | x   |     | x      |      |            |
 | manager_id | int          |     | x   | x      |      |            |
@@ -25,20 +26,11 @@
 
 ---
 
-### SchoolStaff
-| attribute | domain      | pk  | fk  | unique | null | constraint    |
-| --------- | ----------- | --- | --- | ------ | ---- | ------------- |
-| school_id | int         | x   | x   | x      |      |               |
-| person_id | int         | x   | x   | x      |      |               |
-| role      | varchar(20) |     |     |        |      | in roles_list |
-
----
-
 ### Student
-| attribute         | domain      | pk  | fk  | unique | null | constraint |
-| ----------------- | ----------- | --- | --- | ------ | ---- | ---------- |
-| national_no       | int         | x   | x   | x      |      |            |
-| educational_grade | varchar(10) |     |     |        |      |            |
+| attribute         | domain | pk  | fk  | unique | null | constraint     |
+| ----------------- | ------ | --- | --- | ------ | ---- | -------------- |
+| national_no       | int    | x   | x   | x      |      |                |
+| educational_grade | int    |     |     |        |      | in range(1:12) |
 
 ---
 
@@ -78,15 +70,8 @@
 | course_id         | int         |     | x   |        |      |                          |
 | exam_type         | varchar(10) |     |     |        |      | in('mid','final','quiz') |
 
-
-### Subject
-| attribute | domain       | pk  | fk  | unique | null | constraint |
-| --------- | ------------ | --- | --- | ------ | ---- | ---------- |
-| id        | serial       | x   |     | x      |      |            |
-| category  | varchar(100) |     |     |        |      |            |
-| course_id | int          |     | x   |        | x    |            |
-
 ---
+
 
 ### FourChoices
 | attribute     | domain       | pk  | fk  | unique | null | constraint |
@@ -106,37 +91,29 @@
 | question_text  | varcahar(300) |     |     |        |      |            |
 | answer_text    | varchar(500)  |     |     |        | x    |            |
 | comments       | varchar(200)  |     |     |        | x    |            |
-| issued_by      | int           |     | x   |        | x    |            |
+| issued_by      | int           |     | x   |        |      |            |
 | choices        | int           |     | x   | x      | x    |            |
 | correct_choice | int           |     |     |        | x    |            |
 
 ---
 
-### Question-Subject
+### Exam-Question
 | attribute   | domain | pk  | fk  | unique | null | constraint |
 | ----------- | ------ | --- | --- | ------ | ---- | ---------- |
-| question_id | int    | x   | x   | x      |      |            |
-| subject_id  | int    | x   | x   | x      |      |            |
-
----
-
-### Exam-Question
-| attribute   | domain | pk  | fk  | unique | null | constraint     |
-| ----------- | ------ | --- | --- | ------ | ---- | -------------- |
-| id          | serial | x   |     | x      |      |                |
-| exam_id     | int    |     | x   | x      |      |                |
-| question_id | int    |     | x   | x      |      |                |
-| points      | int    |     |     |        |      | in range(0:20) |
+| id          | serial | x   |     | x      |      |            |
+| exam_id     | int    |     | x   | x      |      |            |
+| question_id | int    |     | x   | x      |      |            |
+| points      | int    |     |     |        |      |            |
 **exam_id and question_id are unique together**
 
 ---
 ### Submission
-| attribute     | domain | pk  | fk  | unique | null | constraint     |
-| ------------- | ------ | --- | --- | ------ | ---- | -------------- |
-| eq_id         | int    | x   | x   |        |      |                |
-| student_no    | int    | x   | x   |        |      | in range(0:20) |
-| points_earned | int    |     |     |        | x    |                |
-| examiner_no   | int    |     | x   |        |      |                |
+| attribute     | domain | pk  | fk  | unique | null | constraint |
+| ------------- | ------ | --- | --- | ------ | ---- | ---------- |
+| eq_id         | int    | x   | x   |        |      |            |
+| student_no    | int    | x   | x   |        |      |            |
+| points_earned | int    |     |     |        | x    |            |
+| examiner_no   | int    |     | x   |        |      |            |
 
 ---
 

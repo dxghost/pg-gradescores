@@ -57,14 +57,16 @@ func createTables(db *sql.DB) error {
 	// TODO add constraints
 	// TODO add not nulls
 	// TODO Check table design
+
 	// PERSON
 	log.Println(Yellow("Creating table 'Person'."))
 	_, err := db.Query(`Create Table Person(
-			first_name varchar(20),
-			last_name varchar(40),
-			national_no serial primary key,
-			date_of_birth date
-		)`)
+		first_name varchar(20) not null,
+		last_name varchar(40) not null,
+		national_no serial primary key check(length(national_no::varchar) = 8),
+		date_of_birth date not null,
+		check (date_of_birth < '2012-01-01')
+	)`)
 	if err != nil {
 		return err
 	}
@@ -73,7 +75,7 @@ func createTables(db *sql.DB) error {
 	log.Println(Yellow("Creating table 'Student'."))
 	_, err = db.Query(`Create Table Student(
 			national_no int primary key references Person(national_no),
-			educational_grade varchar(10)
+			educational_grade int not null check(educational_grade > 0 and educational_grade < 13)
 		)`)
 	if err != nil {
 		return err
@@ -93,7 +95,8 @@ func createTables(db *sql.DB) error {
 	log.Println(Yellow("Creating table 'School'."))
 	_, err = db.Query(`Create Table School(
 			id serial primary key,
-			manager_id int references Person(national_no),
+			name varchar(50) not null,
+			manager_id int references Person(national_no) not null,
 			address varchar(300)
 		)`)
 	if err != nil {
@@ -102,23 +105,12 @@ func createTables(db *sql.DB) error {
 
 	// SCHOOLGRADE
 	log.Println(Yellow("Creating table 'SchoolGrade'."))
-	_, err = db.Query(`Create Table SchoolGrade(
-			school_id int references School(id),
-			grades_no int,
-			primary key(school_id,grades_no)
-		)`)
-	if err != nil {
-		return err
-	}
-
-	// SCHOOLSTAFF
-	log.Println(Yellow("Creating table 'SchoolStaff'."))
-	_, err = db.Query(`Create Table SchoolStaff(
-			school_id int references School(id),
-			person_id int references Person(national_no),
-			role varchar(20),
-			primary key(school_id,person_id)
-		)`)
+	_, err = db.Query(`
+	Create Table SchoolGrade(
+				school_id int references School(id),
+				grade_no int not null check(grade_no > 0 and grade_no < 13),
+				primary key(school_id, grade_no)
+			)`)
 	if err != nil {
 		return err
 	}
@@ -138,7 +130,7 @@ func createTables(db *sql.DB) error {
 	log.Println(Yellow("Creating table 'Course'."))
 	_, err = db.Query(`Create Table Course(
 			id serial primary key,
-			title varchar(40)
+			title varchar(40) not null
 		)`)
 	if err != nil {
 		return err
@@ -163,19 +155,9 @@ func createTables(db *sql.DB) error {
 			id serial primary key,
 			title varchar(60),
 			teacher_national_no int references Teacher(national_no),
-			course_id int references Course(id),
-			exam_type varchar(10)
-		)`)
-	if err != nil {
-		return err
-	}
-
-	// Subject
-	log.Println(Yellow("Creating table 'Subject'."))
-	_, err = db.Query(`Create Table Subject(
-			id serial primary key,
-			category varchar(100),
-			course_id int references Course(id)
+			course_id int references Course(id) not null,
+			exam_type varchar(10),
+			check(exam_type in ('mid','final','quiz'))
 		)`)
 	if err != nil {
 		return err
@@ -185,10 +167,10 @@ func createTables(db *sql.DB) error {
 	log.Println(Yellow("Creating table 'Question'."))
 	_, err = db.Query(`Create Table Question(
 			id serial primary key,
-			question_text varchar(300),
+			question_text varchar(300) not null,
 			answer_text varchar(500),
 			comments varchar(200),
-			issued_by int references Teacher(national_no),
+			issued_by int references Teacher(national_no) not null,
 			choices int references FourChoice(id),
 			correct_choice int
 		)`)
@@ -201,9 +183,10 @@ func createTables(db *sql.DB) error {
 	log.Println(Yellow("Creating table 'ExamQuestion'."))
 	_, err = db.Query(`Create Table ExamQuestion(
 			id serial primary key,
-			exam_id int references Exam(id),
-			question_id int references Question(id),
-			points int
+			exam_id int references Exam(id) not null,
+			question_id int references Question(id) not null,
+			points int not null,
+			unique (exam_id, question_id)
 			
 		)`)
 	if err != nil {
@@ -216,7 +199,8 @@ func createTables(db *sql.DB) error {
 			eq_id int references ExamQuestion(id),
 			student_no int references Student(national_no),
 			examiner_no int references Teacher(national_no),
-			points_earned int
+			points_earned int,
+			primary key(eq_id, student_no)
 			
 		)`)
 	if err != nil {
