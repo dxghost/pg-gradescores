@@ -3,12 +3,9 @@ package prompt
 import (
 	"database/sql"
 	"fmt"
-	"github.com/dxghost/pg-gradescores/utils"
-	"log"
-	"strconv"
 	"strings"
-	"os"
-    "github.com/jedib0t/go-pretty/table"
+
+	"github.com/dxghost/pg-gradescores/utils"
 )
 
 type Prompt struct {
@@ -37,31 +34,12 @@ func (p *Prompt) Start() {
 		args := strings.Split(input, " ")
 		switch args[0] {
 		case "Students":
-			rows, err := p.db.Query("SELECT national_no, first_name, last_name, educational_grade FROM Student natural join Person")
-			if err != nil {
-				log.Fatal(err)
+			if len(args) == 1 {
+				p.ShowStudents()
+			} else {
+				continue
 			}
 
-			var nno int
-			var fname string
-			var lname string
-			var edgrade int
-
-			t := table.NewWriter()
-			t.SetOutputMirror(os.Stdout)
-			t.AppendHeader(table.Row{"national number", "first name", "last name", "educational grade"})
-
-			for rows.Next() {
-				err = rows.Scan(&nno, &fname, &lname, &edgrade)
-				if err != nil {
-					log.Fatal(err)
-				}
-				// TODO migrate query functions
-				t.AppendRow([]interface{}{strconv.Itoa(nno), fname, lname, strconv.Itoa(edgrade)})
-
-			}
-			t.Render()
-			
 		case "Teachers":
 			fmt.Println(utils.Red("Teaches"))
 		default:
