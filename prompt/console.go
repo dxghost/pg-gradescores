@@ -41,7 +41,11 @@ func (p *Prompt) Start() {
 			}
 
 		case "Teachers":
-			fmt.Println(utils.Red("Teaches"))
+			if len(args) == 1 {
+				p.ShowTeachers()
+			} else {
+				continue
+			}
 		default:
 			fmt.Println(utils.Red("Wrong command"))
 		}

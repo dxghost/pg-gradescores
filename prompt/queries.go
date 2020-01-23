@@ -7,6 +7,7 @@ import (
 	"strconv"	
 
 )
+
 // ShowStudents Query to get all students in database
 func (p *Prompt) ShowStudents(){
 	rows, err := p.db.Query("SELECT national_no, first_name, last_name, educational_grade, name as school_name FROM School natural join StudentSchool natural join Student natural join Person")
@@ -30,6 +31,33 @@ func (p *Prompt) ShowStudents(){
 			log.Fatal(err)
 		}
 		t.AppendRow([]interface{}{strconv.Itoa(nno), fname, lname, strconv.Itoa(edgrade),schoolname})
+	}
+	t.Render()
+}
+
+// ShowTeachers Query to get all teachers in database
+func (p *Prompt) ShowTeachers(){
+	rows, err := p.db.Query("SELECT national_no, first_name, last_name, name as school_name, degrees FROM School natural join TeacherSchool natural join Teacher natural join Person")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var nno int
+	var fname string
+	var lname string
+	var degrees string
+	var schoolname string 
+
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"national number", "first name", "last name", "school name", "degrees"})
+
+	for rows.Next() {
+		err = rows.Scan(&nno, &fname, &lname, &schoolname, &degrees)
+		if err != nil {
+			log.Fatal(err)
+		}
+		t.AppendRow([]interface{}{strconv.Itoa(nno), fname, lname, schoolname, degrees})
 	}
 	t.Render()
 }
