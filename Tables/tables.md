@@ -43,12 +43,19 @@
 
 ---
 
-### School-Teacher
-| attribute         | domain | pk  | fk  | unique | null | constraint |
-| ----------------- | ------ | --- | --- | ------ | ---- | ---------- |
-| teacher_national# | int    | x   | x   | x      |      |            |
-| school_id         | int    | x   | x   | x      |      |            |
+### StudentSchool
+| attribute           | domain | pk  | fk  | unique | null | constraint |
+| ------------------- | ------ | --- | --- | ------ | ---- | ---------- |
+| student_national_no | int    | x   | x   |        |      |            |
+| school_id           | int    | x   | x   |        |      |            |
 
+---
+
+### TeacherSchool
+| attribute           | domain | pk  | fk  | unique | null | constraint |
+| ------------------- | ------ | --- | --- | ------ | ---- | ---------- |
+| teacher_national_no | int    | x   | x   |        |      |            |
+| school_id           | int    | x   | x   |        |      |            |
 
 ---
 

@@ -4,7 +4,7 @@ package main
 import (
 
 	"log"
-	// "fmt"
+	"fmt"
 	// "strconv"
 	utils "github.com/dxghost/pg-gradescores/utils"
 	prompt "github.com/dxghost/pg-gradescores/prompt"
@@ -43,25 +43,26 @@ func main() {
 		log.Fatal(utils.Red(err))
 	}
 
-	// fmt.Println()
-	// fmt.Println(utils.Yellow("This step is only needed for the first time."))
-	// fmt.Printf(utils.Green("Initialize definitions? [y/n]? "))
-	// fmt.Scan(&answer)
-	// if answer == "y"{
-	// 	err = utils.CreateTables(db)
-	// 	if err != nil {
-	// 		log.Fatal(utils.Red(err))
-	// 	}
-	// 	err = utils.CreateAssertions(db)
-	// 	if err != nil {
-	// 		log.Fatal(utils.Red(err))
-	// 	}
+	var answer string
+	fmt.Println()
+	fmt.Println(utils.Yellow("This step is only needed for the first time."))
+	fmt.Printf(utils.Green("Initialize definitions? [y/n]? "))
+	fmt.Scan(&answer)
+	if answer == "y"{
+		err = utils.CreateTables(db)
+		if err != nil {
+			log.Fatal(utils.Red(err))
+		}
+		err = utils.CreateAssertions(db)
+		if err != nil {
+			log.Fatal(utils.Red(err))
+		}
 	
-	// 	err = utils.CreateTriggers(db)
-	// 	if err != nil {
-	// 		log.Fatal(utils.Red(err))
-	// 	} 
-	// }
+		err = utils.CreateTriggers(db)
+		if err != nil {
+			log.Fatal(utils.Red(err))
+		} 
+	}
 
 	p := prompt.CreatePrompt(db)
 	p.Start()

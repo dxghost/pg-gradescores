@@ -1,14 +1,11 @@
 package utils
 
-import(
-	"log"
+import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"log"
 )
-
-
-
 
 func ConnectPG(username string, password string, port int, host string) (*sql.DB, error) {
 	log.Println(Yellow(fmt.Sprintf("Connecting to postgres with username '%s' on '%s:%d'.", username, host, port)))
@@ -22,6 +19,7 @@ func ConnectPG(username string, password string, port int, host string) (*sql.DB
 }
 
 func CreateAssertions(db *sql.DB) error {
+	// TODO check studentschool insertion with grades defined in schoolgrade
 	// submitted question points earned shouldnt exceed question points
 	log.Println(Yellow("Creating earned points constraint."))
 	_, err := db.Query(`
@@ -159,10 +157,21 @@ func CreateTables(db *sql.DB) error {
 		return err
 	}
 
-	// SCHOOLTEACHER
-	log.Println(Yellow("Creating table 'SchoolTeacher'."))
-	_, err = db.Query(`Create Table SchoolTeacher(
-			teacher_national_no int references teacher(national_no),
+	// STUDENTSCHOOL
+	log.Println(Yellow("Creating table 'StudentSchool'."))
+	_, err = db.Query(`Create Table StudentSchool(
+			student_national_no int references Student(national_no),
+			school_id int references School(id),
+			primary key(student_national_no, school_id)
+		)`)
+	if err != nil {
+		return err
+	}
+
+	// TEACHERSCHOOL
+	log.Println(Yellow("Creating table 'TeacherSchool'."))
+	_, err = db.Query(`Create Table TeacherSchool(
+			teacher_national_no int references Teacher(national_no),
 			school_id int references School(id),
 			primary key(teacher_national_no, school_id)
 		)`)
