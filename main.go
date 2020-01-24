@@ -3,9 +3,10 @@ package main
 // TODO update ERD
 import (
 	"fmt"
+	"log"
+	// "strconv"
 	prompt "github.com/dxghost/pg-gradescores/prompt"
 	utils "github.com/dxghost/pg-gradescores/utils"
-	"log"
 )
 
 func main() {
@@ -22,19 +23,21 @@ create schema public;
 
 	// fmt.Println(utils.Yellow("In order to start, you should first install postgresql and create a database named 'gradescores'"))
 	// fmt.Printf(utils.Green("Connect to database [y/n]? "))
-	// var answer string
 	// fmt.Scan(&answer)
 	// fmt.Println()
-	// if answer == "n"{ return }
+	// if utils.Contains(refuse, answer) {
+	// 	return
+	// }
 	// var host, port, username, password string
 	// var intport int
-
 	// fmt.Printf(utils.Cyan("host: "))
 	// fmt.Scan(&host)
 	// fmt.Printf(utils.Cyan("port: "))
 	// fmt.Scan(&port)
 	// intport, err := strconv.Atoi(port)
-	// if err!=nil{log.Fatal(utils.Red("Port should be a number"))	}
+	// if err != nil {
+	// 	log.Fatal(utils.Red("Port should be a number"))
+	// }
 	// fmt.Printf(utils.Cyan("username: "))
 	// fmt.Scan(&username)
 	// fmt.Printf(utils.Cyan("password: "))
