@@ -4,13 +4,19 @@ import (
 	"fmt"
 )
 // TODO add treeview for helps using termui
+
+// ShowHelp shows help message
 func (p *Prompt) ShowHelp() {
 	helpMessage :=`
-	fmt.Println()
-	fmt.Println(utils.Green("Available commands:"))
-	fmt.Println(utils.Green("	students"))
-	fmt.Println(utils.Green("	teachers"))
-	fmt.Println()
+Available commands:
+	Students:
+		students
+		students create
+		students number 12345678
+	Teachers:
+		teachers
+		teachers create
+		teachers number 12345678
 `
 	fmt.Println(helpMessage)
 }
