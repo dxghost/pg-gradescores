@@ -11,34 +11,33 @@ import (
 
 // ShowStudents Query to get all students in database
 func (p *Prompt) ShowStudents() {
-	rows, err := p.db.Query("SELECT national_no, first_name, last_name, educational_grade, name as school_name FROM School natural join StudentSchool natural join Student natural join Person")
+	rows, err := p.db.Query("SELECT national_no, first_name, last_name, educational_grade school_name FROM Student natural join Person")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(utils.Red(err))
 	}
 
 	var nno int
 	var fname string
 	var lname string
 	var edgrade int
-	var schoolname string
+	// var schoolname string
 
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"national number", "first name", "last name", "educational grade", "school name"})
+	t.AppendHeader(table.Row{"national number", "first name", "last name", "educational grade"})
 
 	for rows.Next() {
-		err = rows.Scan(&nno, &fname, &lname, &edgrade, &schoolname)
+		err = rows.Scan(&nno, &fname, &lname, &edgrade)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal(utils.Red(err))
 		}
-		t.AppendRow([]interface{}{strconv.Itoa(nno), fname, lname, strconv.Itoa(edgrade), schoolname})
+		t.AppendRow([]interface{}{strconv.Itoa(nno), fname, lname, strconv.Itoa(edgrade)})
 	}
 	t.Render()
 }
-
 func (p *Prompt) CreateStudent() {
-	var fName, lName, bDate, inNo, inEdGrade string
-	var nNo, edGrade int
+	var fName, lName, bDate, inNo, inEdGrade, schoolId string
+	var nNo, edGrade  int
 	fmt.Printf(utils.Cyan("\nfirst name: "))
 	fmt.Scan(&fName)
 	fmt.Printf(utils.Cyan("last name: "))
@@ -47,6 +46,8 @@ func (p *Prompt) CreateStudent() {
 	fmt.Scan(&bDate)
 	fmt.Printf(utils.Cyan("national number (8 digits): "))
 	fmt.Scan(&inNo)
+	fmt.Printf(utils.Cyan("school id : "))
+	fmt.Scan(&schoolId)
 	nNo, err := strconv.Atoi(inNo)
 	if err != nil {
 		log.Println(utils.Red(err))
@@ -72,14 +73,39 @@ func (p *Prompt) CreateStudent() {
 	_, err = p.db.Query(fmt.Sprintf(`insert into person (first_name, last_name, national_no, date_of_birth)
 		values ('%s', '%s', %d, '%s');
 		insert into student (national_no, educational_grade) 
-		values (%d, %d);`,fName, lName, nNo, bDate,nNo,edGrade))
+		values (%d, %d);
+		insert into studentschool (student_national_no, school_id)
+		values (%d, %s);`,fName, lName, nNo, bDate,nNo,edGrade,nNo,schoolId))
 	if err != nil{
 		log.Println(utils.Red(err))
 		return
 	}
+	fmt.Println(utils.Green("\ncreated successfully"))
 }
 func (p *Prompt) ShowSingleStudent(args []string) {
-	return
+	rows, err := p.db.Query(fmt.Sprintf("SELECT national_no, first_name, last_name, educational_grade, school_id FROM  Person natural join Student  join StudentSchool on student.national_no = studentschool.student_national_no  where national_no =  %s;",args[2]))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var nno int
+	var fname string
+	var lname string
+	var edgrade int
+	var school_name string
+
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"national number", "first name", "last name", "educational grade", "school name"})
+
+	for rows.Next() {
+		err = rows.Scan(&nno, &fname, &lname, &edgrade, &school_name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		t.AppendRow([]interface{}{strconv.Itoa(nno), fname, lname, strconv.Itoa(edgrade), school_name})
+	}
+	t.Render()
 }
 func (p *Prompt) ShowStudentGrades(args []string) {
 }
