@@ -9,4 +9,6 @@ var Red = color.New(color.FgRed).SprintFunc()
 // Yellow color
 var Yellow = color.New(color.FgHiYellow).SprintFunc()
 // Cyan color
-var Cyan = color.New(color.FgCyan).SprintFunc()
+var Cyan = color.New(color.FgHiCyan).SprintFunc()
+// BlinkingMagenta for prompt
+var BlinkingMagenta = color.New(color.FgMagenta,color.BlinkSlow).SprintFunc()

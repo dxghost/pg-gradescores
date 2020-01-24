@@ -223,5 +223,5 @@ func (p *Prompt) Start() {
 
 func (p *Prompt) printPrompt() {
 	fmt.Println()
-	fmt.Print(utils.Cyan("> "))
+	fmt.Print(utils.BlinkingMagenta(";)"), utils.Yellow(" > "))
 }
