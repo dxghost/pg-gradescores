@@ -8,6 +8,7 @@ import (
 	"github.com/dxghost/pg-gradescores/utils"
 )
 
+// Prompt is the commandline interface
 type Prompt struct {
 	db *sql.DB
 	// queryAgent *utils.Query
@@ -21,6 +22,7 @@ func CreatePrompt(db *sql.DB) *Prompt {
 	return p
 }
 
+// Start the prompt
 func (p *Prompt) Start() {
 	var input string
 	fmt.Println()

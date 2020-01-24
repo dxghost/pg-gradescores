@@ -2,17 +2,24 @@ package main
 
 // TODO update ERD
 import (
-
-	"log"
 	"fmt"
-	// "strconv"
-	utils "github.com/dxghost/pg-gradescores/utils"
 	prompt "github.com/dxghost/pg-gradescores/prompt"
+	utils "github.com/dxghost/pg-gradescores/utils"
+	"log"
 )
 
-
-
 func main() {
+	// Message handle
+	var confirmation = []string{"y", "Yes", "Y", "yes", "YES"}
+	var refuse = []string{"N", "n", "no", "No", "NO"}
+	var recreateSchema = `If you want a fresh DDL first you should recreate the schma
+in order to do that execute commands bellow:
+
+drop schema public cascade;
+create schema public;
+	`
+	var answer string
+
 	// fmt.Println(utils.Yellow("In order to start, you should first install postgresql and create a database named 'gradescores'"))
 	// fmt.Printf(utils.Green("Connect to database [y/n]? "))
 	// var answer string
@@ -43,44 +50,33 @@ func main() {
 		log.Fatal(utils.Red(err))
 	}
 
-	var answer string
 	fmt.Println()
 	fmt.Println(utils.Yellow("This step is only needed for the first time."))
 	fmt.Printf(utils.Green("Initialize definitions? [y/n]? "))
 	fmt.Scan(&answer)
-	if answer == "y"{
+	if utils.Contains(confirmation, answer) {
 		err = utils.CreateTables(db)
 		if err != nil {
-			log.Fatal(utils.Red(err))
+			log.Println(utils.Red(err))
+			fmt.Println(utils.Red(recreateSchema))
+			return
 		}
 		err = utils.CreateAssertions(db)
 		if err != nil {
-			log.Fatal(utils.Red(err))
+			log.Println(utils.Red(err))
+			fmt.Println(utils.Red(recreateSchema))
+			return
 		}
-	
+
 		err = utils.CreateTriggers(db)
 		if err != nil {
-			log.Fatal(utils.Red(err))
-		} 
+			log.Println(utils.Red(err))
+			fmt.Println(utils.Red(recreateSchema))
+			return
+		}
+	} else if utils.Contains(refuse, answer) {
+		p := prompt.CreatePrompt(db)
+		p.Start()
 	}
-
-	p := prompt.CreatePrompt(db)
-	p.Start()
-
-	// rows, err := db.Query("SELECT * FROM Person")
-	// if err!=nil{
-	// 	log.Fatal(err)
-	// }
-
-	// var x int
-	// var y int
-	// var z int
-	// for rows.Next(){
-	// 	err = rows.Scan(&x,&y,&z)
-	// 	if err!=nil{
-	// 		log.Fatal(err)
-	// 	}
-	// 	log.Println(x,y,z)
-	// }
 
 }
