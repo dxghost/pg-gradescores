@@ -1,9 +1,10 @@
 package prompt
 
 import (
-	"log"
-	// "fmt"
+	"fmt"
+	utils "github.com/dxghost/pg-gradescores/utils"
 	"github.com/jedib0t/go-pretty/table"
+	"log"
 	"os"
 	"strconv"
 )
@@ -36,7 +37,46 @@ func (p *Prompt) ShowStudents() {
 }
 
 func (p *Prompt) CreateStudent() {
-	return
+	var fName, lName, bDate, inNo, inEdGrade string
+	var nNo, edGrade int
+	fmt.Printf(utils.Cyan("\nfirst name: "))
+	fmt.Scan(&fName)
+	fmt.Printf(utils.Cyan("last name: "))
+	fmt.Scan(&lName)
+	fmt.Printf(utils.Cyan("birthdate (in 1991-12-10 format): "))
+	fmt.Scan(&bDate)
+	fmt.Printf(utils.Cyan("national number (8 digits): "))
+	fmt.Scan(&inNo)
+	nNo, err := strconv.Atoi(inNo)
+	if err != nil {
+		log.Println(utils.Red(err))
+		fmt.Println(utils.Red("national number should be a number"))
+		return
+	}
+	if len(inNo) != 8 {
+		log.Println(utils.Red(err))
+		fmt.Println(utils.Red("national number should be 8 digits"))
+		return
+	}
+	fmt.Printf(utils.Cyan("eductational grade (1~12): "))
+	fmt.Scan(&inEdGrade)
+	edGrade, err = strconv.Atoi(inEdGrade)
+	if err != nil {
+		log.Println(utils.Red(err))
+		fmt.Println(utils.Red("educational grade should be a number"))
+		return
+	}
+	if (edGrade > 12 || edGrade<0) {
+		log.Fatal(utils.Red("educational grade should be between (0,12)"))
+	}
+	_, err = p.db.Query(fmt.Sprintf(`insert into person (first_name, last_name, national_no, date_of_birth)
+		values ('%s', '%s', %d, '%s');
+		insert into student (national_no, educational_grade) 
+		values (%d, %d);`,fName, lName, nNo, bDate,nNo,edGrade))
+	if err != nil{
+		log.Println(utils.Red(err))
+		return
+	}
 }
 func (p *Prompt) ShowSingleStudent(args []string) {
 	return
