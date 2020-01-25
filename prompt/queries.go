@@ -363,7 +363,27 @@ func (p *Prompt) EvalueteSubmission(args []string) {
 
 }
 func (p *Prompt) ShowSchools() {
-	// TODO
+	rows, err := p.db.Query("select id, school.name, person.first_name || ' ' || person.last_name, address from school join person on school.manager_id = person.national_no")
+	if err != nil {
+		log.Fatal(utils.Red(err))
+	}
+
+	var id int
+	var name, address, manager string
+	// var schoolname string
+
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"ID", "name", "manager", "address"})
+
+	for rows.Next() {
+		err = rows.Scan(&id, &name, &manager, &address)
+		if err != nil {
+			log.Fatal(utils.Red(err))
+		}
+		t.AppendRow([]interface{}{strconv.Itoa(id), name, manager, address})
+	}
+	t.Render()
 }
 func (p *Prompt) CreateSchool() {
 	var name, manager_id, address string
