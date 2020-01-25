@@ -196,7 +196,25 @@ func (p *Prompt) ShowTeacherCourses(args []string) {
 
 }
 func (p *Prompt) ShowCourses() {
-	// TODO
+	rows, err := p.db.Query("select id, title from course")
+	if err != nil {
+		log.Fatal(utils.Red(err))
+	}
+	var id int
+	var title string
+
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"ID", "title"})
+
+	for rows.Next() {
+		err = rows.Scan(&id, &title)
+		if err != nil {
+			log.Fatal(utils.Red(err))
+		}
+		t.AppendRow([]interface{}{strconv.Itoa(id), title})
+	}
+	t.Render()
 }
 
 func (p *Prompt) CreateCourse() {
@@ -370,7 +388,6 @@ func (p *Prompt) ShowSchools() {
 
 	var id int
 	var name, address, manager string
-	// var schoolname string
 
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
