@@ -1,6 +1,7 @@
 package prompt
 
 import (
+	"bufio"
 	"fmt"
 	utils "github.com/dxghost/pg-gradescores/utils"
 	"github.com/jedib0t/go-pretty/table"
@@ -8,6 +9,8 @@ import (
 	"os"
 	"strconv"
 )
+
+var Reader = bufio.NewReader(os.Stdin)
 
 // ShowStudents Query to get all students in database
 func (p *Prompt) ShowStudents() {
@@ -35,6 +38,7 @@ func (p *Prompt) ShowStudents() {
 	}
 	t.Render()
 }
+
 func (p *Prompt) CreateStudent() {
 	var fName, lName, bDate, inNo, inEdGrade, schoolID string
 	var nNo, edGrade int
@@ -82,6 +86,7 @@ func (p *Prompt) CreateStudent() {
 	}
 	fmt.Println(utils.Green("\ncreated successfully"))
 }
+
 func (p *Prompt) ShowSingleStudent(args []string) {
 	rows, err := p.db.Query(fmt.Sprintf("SELECT national_no, first_name, last_name, educational_grade, school_id FROM  Person natural join Student  join StudentSchool on student.national_no = studentschool.student_national_no  where national_no =  %s;", args[2]))
 	if err != nil {
@@ -107,8 +112,10 @@ func (p *Prompt) ShowSingleStudent(args []string) {
 	}
 	t.Render()
 }
+
 func (p *Prompt) ShowStudentGrades(args []string) {
 }
+
 func (p *Prompt) ShowStudentExams(args []string) {
 }
 
@@ -150,7 +157,7 @@ func (p *Prompt) CreateTeacher() {
 	fmt.Printf(utils.Cyan("national number (8 digits): "))
 	fmt.Scan(&inNo)
 	fmt.Printf(utils.Cyan("educational degrees: "))
-	fmt.Scan(&degrees)
+	degrees, _ = Reader.ReadString('\n')
 	fmt.Printf(utils.Cyan("school id : "))
 	fmt.Scan(&schoolID)
 	nNo, err := strconv.Atoi(inNo)
@@ -190,7 +197,16 @@ func (p *Prompt) ShowCourses() {
 	// TODO
 }
 func (p *Prompt) CreateCourse() {
-	// TODO
+	var title string
+	fmt.Printf(utils.Cyan("\ncourse name: "))
+	fmt.Scan(&title)
+
+	_, err := p.db.Query(fmt.Sprintf(`insert into course (title) values ('%s');`, title))
+	if err != nil {
+		log.Println(utils.Red(err))
+		return
+	}
+	fmt.Println(utils.Green("\ncreated successfully"))
 }
 func (p *Prompt) ShowSingleCourse(args []string) {
 
@@ -224,6 +240,64 @@ func (p *Prompt) ShowQuestions() {
 }
 func (p *Prompt) CreateQuestion() {
 	// TODO fourquestion creation is here
+	var qText, qAnswer, comments, teacherID string
+	fmt.Println(utils.Yellow("\nin order to create a question you should be a teacher."))
+	fmt.Printf(utils.Cyan("your national number: "))
+	fmt.Scan(&teacherID)
+	fmt.Printf(utils.Cyan("question text: "))
+	qText, _ = Reader.ReadString('\n')
+	fmt.Printf(utils.Cyan("answer: "))
+	qAnswer, _ = Reader.ReadString('\n')
+	fmt.Printf(utils.Cyan("comments: "))
+	comments, _ = Reader.ReadString('\n')
+
+	// four choices
+	var is4Choice string
+	fmt.Printf(utils.Cyan("four choices? [y/n]: "))
+	fmt.Scan(&is4Choice)
+	if utils.Contains(utils.Confirmation, is4Choice) {
+		var choice1, choice2, choice3, choice4, correctChoice string
+		fmt.Printf(utils.Cyan("\nfirst choice: "))
+		choice1, _ = Reader.ReadString('\n')
+		fmt.Printf(utils.Cyan("second choice: "))
+		choice2, _ = Reader.ReadString('\n')
+		fmt.Printf(utils.Cyan("third choice: "))
+		choice3, _ = Reader.ReadString('\n')
+		fmt.Printf(utils.Cyan("fourth choice: "))
+		choice4, _ = Reader.ReadString('\n')
+		fmt.Printf(utils.Cyan("correct choice (its index eg.:(1~4)): "))
+		fmt.Scan(&correctChoice)
+		_, err := p.db.Query(fmt.Sprintf(`insert into fourchoice (first_choice, second_choice, third_choice, fourth_choice)
+		 values ('%s', '%s', '%s', '%s');`, choice1, choice2, choice3, choice4))
+		if err != nil {
+			log.Println(utils.Red(err))
+			return
+		}
+		var id int
+		row, err := p.db.Query(fmt.Sprintf(`select id from fourchoice order by id desc limit 1`))
+		row.Next()
+		err = row.Scan(&id)
+		if err != nil {
+			log.Fatal(utils.Red(err))
+		}
+		_, err = p.db.Query(fmt.Sprintf(`insert into question (question_text, answer_text, comments, issued_by, choices, correct_choice) 
+		values ('%s','%s','%s',%s, %d, %s);`, qText, qAnswer, comments, teacherID, id, correctChoice))
+		if err != nil {
+			log.Println(utils.Red(err))
+			return
+		}
+		fmt.Println(utils.Green("\ncreated successfully"))
+		return
+	} else if utils.Contains(utils.Refuse, is4Choice) {
+		_, err := p.db.Query(fmt.Sprintf(`insert into question (question_text, answer_text, comments, issued_by) 
+		 values ('%s','%s','%s',%s);`, qText, qAnswer, comments, teacherID))
+		if err != nil {
+			log.Println(utils.Red(err))
+			return
+		}
+		fmt.Println(utils.Green("\ncreated successfully"))
+		return
+	}
 
 }
 func (p *Prompt) ShowSingleQuestion(args []string) {

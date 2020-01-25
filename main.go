@@ -11,8 +11,6 @@ import (
 
 func main() {
 	// Message handle
-	var confirmation = []string{"y", "Yes", "Y", "yes", "YES"}
-	var refuse = []string{"N", "n", "no", "No", "NO"}
 	var recreateSchema = `If you want a fresh DDL first you should recreate the schma
 in order to do that execute commands bellow:
 
@@ -25,7 +23,7 @@ create schema public;
 	// fmt.Printf(utils.Green("Connect to database [y/n]? "))
 	// fmt.Scan(&answer)
 	// fmt.Println()
-	// if utils.Contains(refuse, answer) {
+	// if utils.Contains(utils.Refuse, answer) {
 	// 	return
 	// }
 	// var host, port, username, password string
@@ -57,7 +55,7 @@ create schema public;
 	fmt.Println(utils.Yellow("This step is only needed for the first time."))
 	fmt.Printf(utils.Green("Initialize definitions? [y/n]? "))
 	fmt.Scan(&answer)
-	if utils.Contains(confirmation, answer) {
+	if utils.Contains(utils.Confirmation, answer) {
 		err = utils.CreateTables(db)
 		if err != nil {
 			log.Println(utils.Red(err))
@@ -77,7 +75,7 @@ create schema public;
 			fmt.Println(utils.Red(recreateSchema))
 			return
 		}
-	} else if utils.Contains(refuse, answer) {
+	} else if utils.Contains(utils.Refuse, answer) {
 		p := prompt.CreatePrompt(db)
 		p.Start()
 	}

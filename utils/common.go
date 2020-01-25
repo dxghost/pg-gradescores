@@ -9,3 +9,5 @@ func Contains(arr []string, str string) bool {
 	}
 	return false
 }
+var Confirmation = []string{"y", "Yes", "Y", "yes", "YES"}
+var Refuse = []string{"N", "n", "no", "No", "NO"}
