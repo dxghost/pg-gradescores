@@ -117,6 +117,7 @@ func (p *Prompt) ShowStudentGrades(args []string) {
 }
 
 func (p *Prompt) ShowStudentExams(args []string) {
+	// TODO
 }
 
 // ShowTeachers Query to get all teachers in database
@@ -238,10 +239,29 @@ func (p *Prompt) ShowExamQuestions(args []string) {
 
 }
 func (p *Prompt) ShowQuestions() {
-	// TODO
+	rows, err := p.db.Query("select id, question_text, issued_by from question")
+	if err != nil {
+		log.Fatal(utils.Red(err))
+	}
+
+	var id, issuedBy int
+	var qText string
+	// var schoolname string
+
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"ID", "issued by", "question"})
+
+	for rows.Next() {
+		err = rows.Scan(&id, &qText, &issuedBy)
+		if err != nil {
+			log.Fatal(utils.Red(err))
+		}
+		t.AppendRow([]interface{}{strconv.Itoa(id), qText, strconv.Itoa(issuedBy)})
+	}
+	t.Render()
 }
 func (p *Prompt) CreateQuestion() {
-	// TODO fourquestion creation is here
 	var qText, qAnswer, comments, teacherID string
 	fmt.Println(utils.Yellow("\nin order to create a question you should be a teacher."))
 	fmt.Printf(utils.Cyan("your national number: "))
