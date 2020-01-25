@@ -145,6 +145,7 @@ func (p *Prompt) ShowTeachers() {
 	}
 	t.Render()
 }
+
 func (p *Prompt) CreateTeacher() {
 	var fName, lName, bDate, inNo, schoolID, degrees string
 	var nNo int
@@ -196,6 +197,7 @@ func (p *Prompt) ShowTeacherCourses(args []string) {
 func (p *Prompt) ShowCourses() {
 	// TODO
 }
+
 func (p *Prompt) CreateCourse() {
 	var title string
 	fmt.Printf(utils.Cyan("\ncourse name: "))
@@ -301,7 +303,26 @@ func (p *Prompt) CreateQuestion() {
 
 }
 func (p *Prompt) ShowSingleQuestion(args []string) {
+	rows, err := p.db.Query(fmt.Sprintf("select question.id,question_text,answer_text,comments,issued_by,first_choice,second_choice,third_choice,fourth_choice,correct_choice from question left join fourchoice on question.choices = fourchoice.id  where question.id =  %s;", args[2]))
+	if err != nil {
+		log.Fatal(err)
+	}
+	var qID, issuedBy, correctChoice int
+	var qText, qAnswer, comments, choice1, choice2, choice3, choice4 string
 
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"ID", "question", "answer", "comments", "issued by", "choice 1", "choice2", "choice3", "choice4", "correct choice"})
+
+	for rows.Next() {
+		err = rows.Scan(&qID, &qText, &qAnswer, &comments, &issuedBy, &choice1, &choice2, &choice3, &choice4, &correctChoice)
+		if err != nil {
+			rows.Scan(&qID, &qText, &qAnswer, &comments, &issuedBy)
+			// log.Fatal(err)
+		}
+		t.AppendRow([]interface{}{strconv.Itoa(qID), qText, qAnswer, comments, strconv.Itoa(issuedBy), choice1, choice2, choice3, choice4, strconv.Itoa(correctChoice)})
+	}
+	t.Render()
 }
 func (p *Prompt) ShowExamSubmissions(args []string) {
 
