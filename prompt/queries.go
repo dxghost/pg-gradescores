@@ -36,8 +36,8 @@ func (p *Prompt) ShowStudents() {
 	t.Render()
 }
 func (p *Prompt) CreateStudent() {
-	var fName, lName, bDate, inNo, inEdGrade, schoolId string
-	var nNo, edGrade  int
+	var fName, lName, bDate, inNo, inEdGrade, schoolID string
+	var nNo, edGrade int
 	fmt.Printf(utils.Cyan("\nfirst name: "))
 	fmt.Scan(&fName)
 	fmt.Printf(utils.Cyan("last name: "))
@@ -47,7 +47,7 @@ func (p *Prompt) CreateStudent() {
 	fmt.Printf(utils.Cyan("national number (8 digits): "))
 	fmt.Scan(&inNo)
 	fmt.Printf(utils.Cyan("school id : "))
-	fmt.Scan(&schoolId)
+	fmt.Scan(&schoolID)
 	nNo, err := strconv.Atoi(inNo)
 	if err != nil {
 		log.Println(utils.Red(err))
@@ -67,7 +67,7 @@ func (p *Prompt) CreateStudent() {
 		fmt.Println(utils.Red("educational grade should be a number"))
 		return
 	}
-	if (edGrade > 12 || edGrade<0) {
+	if edGrade > 12 || edGrade < 0 {
 		log.Fatal(utils.Red("educational grade should be between (0,12)"))
 	}
 	_, err = p.db.Query(fmt.Sprintf(`insert into person (first_name, last_name, national_no, date_of_birth)
@@ -75,15 +75,15 @@ func (p *Prompt) CreateStudent() {
 		insert into student (national_no, educational_grade) 
 		values (%d, %d);
 		insert into studentschool (student_national_no, school_id)
-		values (%d, %s);`,fName, lName, nNo, bDate,nNo,edGrade,nNo,schoolId))
-	if err != nil{
+		values (%d, %s);`, fName, lName, nNo, bDate, nNo, edGrade, nNo, schoolID))
+	if err != nil {
 		log.Println(utils.Red(err))
 		return
 	}
 	fmt.Println(utils.Green("\ncreated successfully"))
 }
 func (p *Prompt) ShowSingleStudent(args []string) {
-	rows, err := p.db.Query(fmt.Sprintf("SELECT national_no, first_name, last_name, educational_grade, school_id FROM  Person natural join Student  join StudentSchool on student.national_no = studentschool.student_national_no  where national_no =  %s;",args[2]))
+	rows, err := p.db.Query(fmt.Sprintf("SELECT national_no, first_name, last_name, educational_grade, school_id FROM  Person natural join Student  join StudentSchool on student.national_no = studentschool.student_national_no  where national_no =  %s;", args[2]))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -139,7 +139,43 @@ func (p *Prompt) ShowTeachers() {
 	t.Render()
 }
 func (p *Prompt) CreateTeacher() {
-	return
+	var fName, lName, bDate, inNo, schoolID, degrees string
+	var nNo int
+	fmt.Printf(utils.Cyan("\nfirst name: "))
+	fmt.Scan(&fName)
+	fmt.Printf(utils.Cyan("last name: "))
+	fmt.Scan(&lName)
+	fmt.Printf(utils.Cyan("birthdate (in 1991-12-10 format): "))
+	fmt.Scan(&bDate)
+	fmt.Printf(utils.Cyan("national number (8 digits): "))
+	fmt.Scan(&inNo)
+	fmt.Printf(utils.Cyan("educational degrees: "))
+	fmt.Scan(&degrees)
+	fmt.Printf(utils.Cyan("school id : "))
+	fmt.Scan(&schoolID)
+	nNo, err := strconv.Atoi(inNo)
+	if err != nil {
+		log.Println(utils.Red(err))
+		fmt.Println(utils.Red("national number should be a number"))
+		return
+	}
+	if len(inNo) != 8 {
+		log.Println(utils.Red(err))
+		fmt.Println(utils.Red("national number should be 8 digits"))
+		return
+	}
+
+	_, err = p.db.Query(fmt.Sprintf(`insert into person (first_name, last_name, national_no, date_of_birth)
+		values ('%s', '%s', %d, '%s');
+		insert into teacher (national_no, degrees) 
+		values (%d, %s);
+		insert into teacherschool (teacher_national_no, school_id)
+		values (%d, %s);`, fName, lName, nNo, bDate, nNo, degrees, nNo, schoolID))
+	if err != nil {
+		log.Println(utils.Red(err))
+		return
+	}
+	fmt.Println(utils.Green("\ncreated successfully"))
 }
 func (p *Prompt) ShowSingleTeacher(args []string) {
 
@@ -151,10 +187,10 @@ func (p *Prompt) ShowTeacherCourses(args []string) {
 
 }
 func (p *Prompt) ShowCourses() {
-
+	// TODO
 }
 func (p *Prompt) CreateCourse() {
-
+	// TODO
 }
 func (p *Prompt) ShowSingleCourse(args []string) {
 
@@ -172,10 +208,10 @@ func (p *Prompt) ShowCourseExams(args []string) {
 
 }
 func (p *Prompt) ShowExams() {
-
+	// TODO
 }
 func (p *Prompt) CreateExam() {
-
+	// TODO
 }
 func (p *Prompt) ShowSingleExam(args []string) {
 
@@ -184,9 +220,10 @@ func (p *Prompt) ShowExamQuestions(args []string) {
 
 }
 func (p *Prompt) ShowQuestions() {
-
+	// TODO
 }
 func (p *Prompt) CreateQuestion() {
+	// TODO fourquestion creation is here
 
 }
 func (p *Prompt) ShowSingleQuestion(args []string) {
@@ -199,10 +236,10 @@ func (p *Prompt) ShowQuestionSubmissions(args []string) {
 
 }
 func (p *Prompt) ShowSubmissions() {
-
+	// TODO
 }
 func (p *Prompt) CreateSubmission() {
-
+	// TODO
 }
 func (p *Prompt) ShowSingleSubmission(args []string) {
 
@@ -211,10 +248,24 @@ func (p *Prompt) EvalueteSubmission(args []string) {
 
 }
 func (p *Prompt) ShowSchools() {
-
+	// TODO
 }
 func (p *Prompt) CreateSchool() {
+	var name, manager_id, address string
+	fmt.Printf(utils.Cyan("\nschool name: "))
+	fmt.Scan(&name)
+	fmt.Printf(utils.Cyan("manager national number: "))
+	fmt.Scan(&manager_id)
+	fmt.Printf(utils.Cyan("school address: "))
+	fmt.Scan(&address)
 
+	_, err := p.db.Query(fmt.Sprintf(`insert into school (name, manager_id, address)
+		values ('%s', '%s', '%s');`, name, manager_id, address))
+	if err != nil {
+		log.Println(utils.Red(err))
+		return
+	}
+	fmt.Println(utils.Green("\ncreated successfully"))
 }
 func (p *Prompt) ShowSingleSchool(args []string) {
 

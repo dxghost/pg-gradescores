@@ -115,7 +115,7 @@ func (p *Prompt) Start() {
 					fmt.Println(utils.Red("Wrong command"))
 				}
 			}
-		case "school":
+		case "schools":
 			// // TODO list all students studying grade n
 			// // TODO list all teachers presenting that course in shcool
 			// // TODO list all students taking that course in school
