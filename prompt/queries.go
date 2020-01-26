@@ -309,7 +309,45 @@ func (p *Prompt) CreateExam() {
 }
 
 func (p *Prompt) ShowSingleExam(args []string) {
-	// TODO
+	rows, err := p.db.Query(fmt.Sprintf(`select id, title, person.first_name || ' ' || person.last_name , course_id, exam_type, points from exam join person on exam.teacher_national_no=person.national_no 
+	 where id = %s`, args[2]))
+	if err != nil {
+		log.Fatal(utils.Red(err))
+	}
+
+	var id, courseID, points int
+	var title, teacher, examType string
+	// var schoolname string
+
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"ID", "title", "created by", "course id", "type", "points"})
+
+	for rows.Next() {
+		err = rows.Scan(&id, &title, &teacher, &courseID, &examType, &points)
+		if err != nil {
+			log.Fatal(utils.Red(err))
+		}
+		t.AppendRow([]interface{}{strconv.Itoa(id), title, teacher, strconv.Itoa(courseID), examType, strconv.Itoa(points)})
+	}
+	t.Render()
+	questions, err := p.db.Query(fmt.Sprintf("select id, question_id, points from ExamQuestion where exam_id = %s;", args[2]))
+	if err != nil {
+		log.Fatal(utils.Red(err))
+	}
+	qs := table.NewWriter()
+	var eqID, questionID, pts int
+	qs.SetOutputMirror(os.Stdout)
+	qs.AppendHeader(table.Row{"exam-question ID", "question ID", "points"})
+	for questions.Next() {
+		err = questions.Scan(&eqID, &questionID, &pts)
+		if err != nil {
+			log.Fatal(utils.Red(err))
+		}
+		qs.AppendRow([]interface{}{strconv.Itoa(eqID), strconv.Itoa(questionID), strconv.Itoa(pts)})
+	}
+	qs.Render()
+
 }
 
 func (p *Prompt) ShowQuestions() {
