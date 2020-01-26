@@ -35,7 +35,7 @@ insert into question
 values(2, 'What is 2*5?', '10', 'comment sample', 87654321, 1, 1);
 insert into examquestion
     (exam_id,question_id,points)
-values(2, 1, 2, 12);
+values(1, 2, 12);
 insert into submission
     (eq_id,student_no,examiner_no,points_earned,answer,answer_choice)
 values(2, 12345678, null, null);

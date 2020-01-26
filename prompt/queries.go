@@ -248,7 +248,45 @@ func (p *Prompt) ShowExams() {
 	// TODO
 }
 func (p *Prompt) CreateExam() {
-	// TODO
+	var title, teacherID, courseID, examType string
+	fmt.Println(utils.Yellow("\nin order to create an exam you should be teacher."))
+	fmt.Printf(utils.Cyan("enter your national number: "))
+	teacherID, _ = Reader.ReadString('\n')
+	fmt.Printf(utils.Cyan("exam title: "))
+	title, _ = Reader.ReadString('\n')
+	fmt.Printf(utils.Cyan("related course id: "))
+	courseID, _ = Reader.ReadString('\n')
+	fmt.Printf(utils.Cyan("exam type (mid | final | quiz) : "))
+	fmt.Scan(&examType)
+	_, err := p.db.Query(fmt.Sprintf(`insert into exam (title,teacher_national_no,course_id,exam_type) 
+	 values ('%s', %s , %s, '%s');`, title, teacherID, courseID, examType))
+	if err != nil {
+		log.Fatalln(utils.Red(err))
+	}
+	var id int
+	var qid, qptr string
+	row, err := p.db.Query(fmt.Sprintf(`select id from exam order by id desc limit 1`))
+	row.Next()
+	err = row.Scan(&id)
+	if err != nil {
+		log.Fatal(utils.Red(err))
+	}
+	answer := "y"
+	for utils.Contains(utils.Confirmation, answer) {
+		fmt.Printf(utils.Cyan("question id: "))
+		qid, _ = Reader.ReadString('\n')
+		fmt.Printf(utils.Cyan("question points: "))
+		qptr, _ = Reader.ReadString('\n')
+		_, err = p.db.Query(fmt.Sprintf(`insert into examquestion (exam_id,question_id,points) 
+		 values (%d, %s, %s)`, id, qid, qptr))
+		if err!=nil{
+			log.Fatalln(utils.Red(err))
+		}
+		fmt.Printf(utils.Yellow("Add more questions [y/n]? "))
+		fmt.Scan(&answer)
+	}
+	fmt.Println(utils.Green("\ncreated successfully"))
+	return
 }
 func (p *Prompt) ShowSingleExam(args []string) {
 
