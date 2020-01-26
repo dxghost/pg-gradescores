@@ -117,7 +117,29 @@ func (p *Prompt) ShowStudentGrades(args []string) {
 }
 
 func (p *Prompt) ShowStudentExams(args []string) {
-	// TODO
+	rows, err := p.db.Query(fmt.Sprintf(`select id, title, person.first_name || ' ' || person.last_name , course_id, exam_type, points from exam join person on exam.teacher_national_no=person.national_no 
+	 where exam.id in (select exam.id from exam join course on exam.course_id=course.id join studentteachercourse on course.id = studentteachercourse.course_id 
+		where studentteachercourse.student_no = %s)`, args[2]))
+	if err != nil {
+		log.Fatal(utils.Red(err))
+	}
+
+	var id, courseID, points int
+	var title, teacher, examType string
+	// var schoolname string
+
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"ID", "title", "created by", "course id", "type", "points"})
+
+	for rows.Next() {
+		err = rows.Scan(&id, &title, &teacher, &courseID, &examType, &points)
+		if err != nil {
+			log.Fatal(utils.Red(err))
+		}
+		t.AppendRow([]interface{}{strconv.Itoa(id), title, teacher, strconv.Itoa(courseID), examType, strconv.Itoa(points)})
+	}
+	t.Render()
 }
 
 // ShowTeachers Query to get all teachers in database

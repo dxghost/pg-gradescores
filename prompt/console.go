@@ -48,7 +48,7 @@ func (p *Prompt) Start() {
 					if len(args) == 3 {
 						p.ShowSingleStudent(args)
 					} else {
-						switch args[2] {
+						switch args[3] {
 						case "grades":
 							p.ShowStudentGrades(args)
 
@@ -74,7 +74,7 @@ func (p *Prompt) Start() {
 					if len(args) == 3 {
 						p.ShowSingleTeacher(args)
 					} else {
-						switch args[2] {
+						switch args[3] {
 						case "exams":
 							p.ShowTeacherExams(args)
 						case "courses":
@@ -98,7 +98,7 @@ func (p *Prompt) Start() {
 					if len(args) == 3 {
 						p.ShowSingleCourse(args)
 					} else {
-						switch args[2] {
+						switch args[3] {
 						case "teachers":
 							p.ShowCourseTeachers(args)
 						case "students":
@@ -131,7 +131,7 @@ func (p *Prompt) Start() {
 					if len(args) == 3 {
 						p.ShowSingleSchool(args)
 					} else {
-						switch args[2] {
+						switch args[3] {
 						case "teachers":
 							p.ShowSchoolTeachers(args)
 						case "students":
@@ -159,7 +159,7 @@ func (p *Prompt) Start() {
 					if len(args) == 3 {
 						p.ShowSingleExam(args)
 					} else {
-						switch args[2] {
+						switch args[3] {
 						case "submissions":
 							p.ShowExamSubmissions(args)
 						default:
@@ -181,7 +181,7 @@ func (p *Prompt) Start() {
 					if len(args) == 3 {
 						p.ShowSingleQuestion(args)
 					} else {
-						switch args[2] {
+						switch args[3] {
 						case "submissions":
 							p.ShowQuestionSubmissions(args)
 						}
@@ -201,7 +201,7 @@ func (p *Prompt) Start() {
 					if len(args) == 3 {
 						p.ShowSingleSubmission(args)
 					} else {
-						switch args[2] {
+						switch args[3] {
 						case "evaluate":
 							p.EvalueteSubmission(args)
 						default:

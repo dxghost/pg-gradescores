@@ -41,6 +41,8 @@ insert into submission
 values(2, 12345678, null, null);
 update submission set points_earned = 10 where eq_id=2 and student_no=12345678;
 
+insert into studentteachercourse values (12345678,87654321,2)
+
 select *
 from exam;
 select *
