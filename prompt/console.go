@@ -160,8 +160,6 @@ func (p *Prompt) Start() {
 						p.ShowSingleExam(args)
 					} else {
 						switch args[2] {
-						case "questions":
-							p.ShowExamQuestions(args)
 						case "submissions":
 							p.ShowExamSubmissions(args)
 						default:

@@ -122,7 +122,7 @@ func (p *Prompt) ShowStudentExams(args []string) {
 
 // ShowTeachers Query to get all teachers in database
 func (p *Prompt) ShowTeachers() {
-	rows, err := p.db.Query("SELECT national_no, first_name, last_name, name as school_name, degrees FROM School natural join TeacherSchool natural join Teacher natural join Person")
+	rows, err := p.db.Query("SELECT national_no, first_name, last_name, degrees FROM  Teacher natural join Person")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -131,18 +131,17 @@ func (p *Prompt) ShowTeachers() {
 	var fname string
 	var lname string
 	var degrees string
-	var schoolname string
 
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"national number", "first name", "last name", "school name", "degrees"})
+	t.AppendHeader(table.Row{"national number", "first name", "last name", "degrees"})
 
 	for rows.Next() {
-		err = rows.Scan(&nno, &fname, &lname, &schoolname, &degrees)
+		err = rows.Scan(&nno, &fname, &lname, &degrees)
 		if err != nil {
 			log.Fatal(err)
 		}
-		t.AppendRow([]interface{}{strconv.Itoa(nno), fname, lname, schoolname, degrees})
+		t.AppendRow([]interface{}{strconv.Itoa(nno), fname, lname, degrees})
 	}
 	t.Render()
 }
@@ -245,7 +244,27 @@ func (p *Prompt) ShowCourseExams(args []string) {
 
 }
 func (p *Prompt) ShowExams() {
-	// TODO
+	rows, err := p.db.Query("select id, title, person.first_name || ' ' || person.last_name , course_id, exam_type, points from exam join person on exam.teacher_national_no=person.national_no")
+	if err != nil {
+		log.Fatal(utils.Red(err))
+	}
+
+	var id, courseID, points int
+	var title, teacher, examType string
+	// var schoolname string
+
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"ID", "title", "created by", "course id", "type", "points"})
+
+	for rows.Next() {
+		err = rows.Scan(&id, &title, &teacher, &courseID, &examType, &points)
+		if err != nil {
+			log.Fatal(utils.Red(err))
+		}
+		t.AppendRow([]interface{}{strconv.Itoa(id), title, teacher, strconv.Itoa(courseID), examType, strconv.Itoa(points)})
+	}
+	t.Render()
 }
 func (p *Prompt) CreateExam() {
 	var title, teacherID, courseID, examType string
@@ -279,7 +298,7 @@ func (p *Prompt) CreateExam() {
 		qptr, _ = Reader.ReadString('\n')
 		_, err = p.db.Query(fmt.Sprintf(`insert into examquestion (exam_id,question_id,points) 
 		 values (%d, %s, %s)`, id, qid, qptr))
-		if err!=nil{
+		if err != nil {
 			log.Fatalln(utils.Red(err))
 		}
 		fmt.Printf(utils.Yellow("Add more questions [y/n]? "))
@@ -288,12 +307,11 @@ func (p *Prompt) CreateExam() {
 	fmt.Println(utils.Green("\ncreated successfully"))
 	return
 }
+
 func (p *Prompt) ShowSingleExam(args []string) {
-
+	// TODO
 }
-func (p *Prompt) ShowExamQuestions(args []string) {
 
-}
 func (p *Prompt) ShowQuestions() {
 	rows, err := p.db.Query("select id, question_text, issued_by from question")
 	if err != nil {
