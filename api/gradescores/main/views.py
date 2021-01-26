@@ -17,6 +17,13 @@ class TeacherViewset(viewsets.ModelViewSet):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
 
+    @action(detail=True,url_path='exams')
+    def open(self, request, *args, **kwargs):
+         # your rest of code and response
+         queryset = Exam.objects.filter(corresponding_class__teacher = self.get_object())
+         serializer = ExamSerializer(queryset, many=True)
+         return Response(data=serializer.data)
+
 class SchoolViewset(viewsets.ModelViewSet):
     queryset = School.objects.all()
     serializer_class = SchoolSerializer
