@@ -42,12 +42,14 @@ router.register(r'students', StudentViewset)
 router.register(r'teachers', TeacherViewset)
 router.register(r'schools', SchoolViewset)
 router.register(r'classes', ClassViewset)
-router.register(r'addresses', AddressViewset)
+# router.register(r'addresses', AddressViewset)
 router.register(r'courses', CourseViewset)
 router.register(r'exams', ExamViewset)
-router.register(r'fourchoices', FourChoiceViewset)
+# router.register(r'fourchoices', FourChoiceViewset)
 router.register(r'questions', QuestionViewset)
 router.register(r'submissions', SubmissionViewset)
+router.register(r'exam-evaluations', ExamEvaluationViewset)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),

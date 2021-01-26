@@ -22,7 +22,7 @@ class Person(models.Model):
     last_name = models.CharField(max_length=40)
     national_no = models.IntegerField(unique=True)
     date_of_birth = models.DateField()
-    # children = models.ManyToManyField(Person)
+    children = models.ManyToManyField("Student", blank=True, null=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
 
 
@@ -32,7 +32,6 @@ class Address(models.Model):
     district = models.CharField(max_length=50)
     street = models.CharField(max_length=50)
     zipcode = models.CharField(max_length=10, null=False, unique=True)
-
 
 
 class Teacher(models.Model):
@@ -47,7 +46,8 @@ class School(models.Model):
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
     manager = models.ForeignKey(Person, on_delete=models.CASCADE)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
-    teachers = models.ManyToManyField(Teacher,blank=True,null=True)
+    teachers = models.ManyToManyField(Teacher, blank=True, null=True)
+
 
 class Student(models.Model):
     personal = models.OneToOneField(
@@ -55,7 +55,7 @@ class Student(models.Model):
     educational_id = models.IntegerField(unique=True)
     educational_grade = models.IntegerField(
         choices=[(i, i) for i in range(1, 13)])
-    school = models.ForeignKey(School,on_delete=models.DO_NOTHING)
+    school = models.ForeignKey(School, on_delete=models.DO_NOTHING)
 
 
 class SchoolGrade(models.Model):
@@ -75,10 +75,9 @@ class Class(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     students = models.ManyToManyField(Student)
+
     class Meta:
         unique_together = (("teacher", "course", "school"),)
-
-
 
 
 class FourChoice(models.Model):
@@ -91,18 +90,20 @@ class FourChoice(models.Model):
 class Question(models.Model):
     question_text = models.CharField(max_length=300)
     answer_text = models.CharField(max_length=500)
-    comments = models.CharField(max_length=200)
-    choices = models.ForeignKey(FourChoice, on_delete=models.DO_NOTHING)
-    correct_choice = models.IntegerField(choices=[(i, i) for i in range(1, 5)])
+    comments = models.CharField(max_length=200, blank=True, null=True)
+    choices = models.ForeignKey(FourChoice, on_delete=models.DO_NOTHING,null=True)
+    correct_choice = models.IntegerField(choices=[(i, i) for i in range(1, 5)],null=True)
     issuer = models.ForeignKey(
         Teacher, on_delete=models.DO_NOTHING, null=True, blank=True)
+
 
 class Exam(models.Model):
     title = models.CharField(max_length=60)
     corresponding_class = models.ForeignKey(Class, on_delete=models.CASCADE)
     exam_type = models.CharField(max_length=10, choices=EXAM_TYPE_CHOICES)
     points = models.IntegerField()
-    question = models.ManyToManyField(Question,through="ExamQuestion")
+    question = models.ManyToManyField(Question, through="ExamQuestion")
+
 
 class ExamQuestion(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
@@ -112,11 +113,18 @@ class ExamQuestion(models.Model):
     class Meta:
         unique_together = (("exam", "question"),)
 
+class ExamEvaluation(models.Model):
+    student = models.ForeignKey(Student,on_delete=models.CASCADE)
+    exam = models.ForeignKey(Exam,on_delete=models.CASCADE)
+    points = models.IntegerField()
+    class Meta:
+        unique_together = (("exam", "student"),)  
+        
 class Submission(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    examinar = models.ForeignKey(Teacher, on_delete=models.CASCADE,null=True)
+    examinar = models.ForeignKey(Teacher, on_delete=models.CASCADE, null=True)
     points = models.IntegerField()
     answer = models.CharField(max_length=500, null=False)
     sts = models.CharField(max_length=10, choices=REVIEW_TYPE_CHOICES)
@@ -124,7 +132,7 @@ class Submission(models.Model):
         choices=[(i, i) for i in range(1, 5)])
 
     class Meta:
-        unique_together = (("student", "exam","question"),)
+        unique_together = (("student", "exam", "question"),)
 
 
 class ExamEvaluation(models.Model):

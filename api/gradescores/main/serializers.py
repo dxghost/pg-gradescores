@@ -3,11 +3,35 @@ from rest_framework import serializers
 from .models import *
 
 
+class StudentBriefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = ["personal"]
+        extra_kwargs = {
+            'personal': {'read_only': False,
+                         'validators': []},
+        }
+
+
 class PersonSerializer(serializers.ModelSerializer):
+    children = StudentBriefSerializer(many=True, required=False)
     class Meta:
         model = Person
         fields = ["id", "national_no", "first_name",
-                  "last_name", "date_of_birth", "gender"]
+                  "last_name", "date_of_birth", "gender","children"]
+
+    def create(self, validated_data):
+        students_data = list(validated_data.pop('children'))
+        # print(students_data)        for teacher_data in teachers_data:
+        person = Person.objects.create(**validated_data)
+        for student_data in students_data:
+            # try:
+            # print("")
+            person.children.add(
+                Student.objects.get(**student_data))
+            # except:
+                # pass
+        return person
 
 
 class TeacherSerializer(serializers.ModelSerializer):
@@ -40,14 +64,6 @@ class TeacherBriefSerializer(serializers.ModelSerializer):
         }
 
 
-class StudentBriefSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Student
-        fields = ["personal"]
-        extra_kwargs = {
-            'personal': {'read_only': False,
-                         'validators': []},
-        }
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -179,6 +195,11 @@ class ExamQuestionSerializer(serializers.ModelSerializer):
         model = ExamQuestion
         fields = ['question', 'points']
 
+class ExamEvaluationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ExamEvaluation
+        fields = "__all__"
 
 class ExamSerializer(serializers.ModelSerializer):
     questions = ExamQuestionSerializer(many=True, required=False)
