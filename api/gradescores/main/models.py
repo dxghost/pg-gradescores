@@ -34,13 +34,6 @@ class Address(models.Model):
     zipcode = models.CharField(max_length=10, null=False, unique=True)
 
 
-class Student(models.Model):
-    personal = models.OneToOneField(
-        Person, on_delete=models.CASCADE, primary_key=True)
-    educational_id = models.IntegerField(unique=True)
-    educational_grade = models.IntegerField(
-        choices=[(i, i) for i in range(1, 13)])
-
 
 class Teacher(models.Model):
     personal = models.OneToOneField(
@@ -55,8 +48,14 @@ class School(models.Model):
     manager = models.ForeignKey(Person, on_delete=models.CASCADE)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
     teachers = models.ManyToManyField(Teacher,blank=True,null=True)
-    students = models.ManyToManyField(Student,blank=True,null=True)
 
+class Student(models.Model):
+    personal = models.OneToOneField(
+        Person, on_delete=models.CASCADE, primary_key=True)
+    educational_id = models.IntegerField(unique=True)
+    educational_grade = models.IntegerField(
+        choices=[(i, i) for i in range(1, 13)])
+    school = models.ForeignKey(School,on_delete=models.DO_NOTHING)
 
 
 class SchoolGrade(models.Model):

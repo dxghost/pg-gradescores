@@ -6,28 +6,10 @@ from .models import *
 class PersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Person
-        fields = '__all__'
+        fields = ["id","national_no","first_name","last_name","date_of_birth","gender"]
 
 
-class StudentSerializer(serializers.ModelSerializer):
-    personal = PersonSerializer()
-    class Meta:
-        model = Student
-        fields = '__all__'
-        extra_kwargs = {
-            'personal': {'read_only': False,
-                            'validators':[]},
-        }
-    
-    def create(self, validated_data):
-        personal_data = validated_data.pop('personal')
-        print(personal_data)
 
-        personal = Person.objects.create(**personal_data)
-        validated_data["personal"]=personal 
-        student = Student.objects.create(**validated_data)
-        return student
-    
 
 
 class TeacherSerializer(serializers.ModelSerializer):
@@ -40,10 +22,7 @@ class TeacherSerializer(serializers.ModelSerializer):
             'personal': {'read_only': False,
                             'validators':[]},
         }
-        extra_kwargs = {
-            'personal': {'read_only': False,
-                            'validators':[]},
-        }
+
     
     def create(self, validated_data):
         personal_data = validated_data.pop('personal')
@@ -53,8 +32,14 @@ class TeacherSerializer(serializers.ModelSerializer):
         teacher = Teacher.objects.create(**validated_data)
         return teacher
     
-
-
+class TeacherBriefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Teacher
+        fields=["personal"]
+        extra_kwargs = {
+            'personal': {'read_only': False,
+                            'validators':[]},
+        }
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
@@ -63,18 +48,47 @@ class AddressSerializer(serializers.ModelSerializer):
 
 class SchoolSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
+    teachers = TeacherBriefSerializer(many=True,required=False)
     class Meta:
         model = School
         fields = '__all__'
     def create(self, validated_data):
         address_data = validated_data.pop('address')
+        teachers_data = validated_data.pop('teachers')
 
         created_address = Address.objects.create(**address_data)
         validated_data["address"]=created_address 
         school = School.objects.create(**validated_data)
+        for teacher_data in teachers_data:
+            school.teachers.add(Teacher.objects.get(**teacher_data))
         return school
 
-
+class SchoolBriefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = School
+        fields = ["id"]
+class StudentSerializer(serializers.ModelSerializer):
+    personal = PersonSerializer()
+    school = SchoolBriefSerializer()
+    class Meta:
+        model = Student
+        fields = '__all__'
+        extra_kwargs = {
+            'personal': {'read_only': False,
+                            'validators':[]},
+        }
+    
+    def create(self, validated_data):
+        personal_data = validated_data.pop('personal')
+        school_data = validated_data.pop("school")
+        print(school_data)
+        personal = Person.objects.create(**personal_data)
+        school = School.objects.get(**school_data)
+        validated_data["personal"]=personal 
+        validated_data["school"]=school
+        student = Student.objects.create(**validated_data)
+        return student
+    
 
 class ClassSerializer(serializers.ModelSerializer):
     students = StudentSerializer(many=True,required=False)
