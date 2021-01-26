@@ -131,8 +131,11 @@ class ClassSerializer(serializers.ModelSerializer):
         # print(students_data)        for teacher_data in teachers_data:
         corresponding_class = Class.objects.create(**validated_data)
         for student_data in students_data:
-            corresponding_class.students.add(
-                Student.objects.get(**student_data))
+            try:
+                corresponding_class.students.add(
+                    Student.objects.get(**student_data))
+            except:
+                pass
         return corresponding_class
 
 
