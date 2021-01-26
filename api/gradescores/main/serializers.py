@@ -25,12 +25,12 @@ class PersonSerializer(serializers.ModelSerializer):
         # print(students_data)        for teacher_data in teachers_data:
         person = Person.objects.create(**validated_data)
         for student_data in students_data:
-            # try:
+            try:
             # print("")
-            person.children.add(
-                Student.objects.get(**student_data))
-            # except:
-                # pass
+                person.children.add(
+                    Student.objects.get(**student_data))
+            except:
+                pass
         return person
 
 

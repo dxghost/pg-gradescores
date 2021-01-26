@@ -32,8 +32,9 @@ class TeacherViewset(viewsets.ModelViewSet):
     @action(detail=True, url_path='exams')
     def get_exams(self, request, *args, **kwargs):
         # your rest of code and response
-        queryset = Exam.objects.filter(
-            corresponding_class__teacher=self.get_object())
+        # queryset = Exam.objects.filter(
+        #     corresponding_class__teacher=self.get_object())
+        queryset = Exam.objects.raw("select * from main_exam join  main_class on main_exam.corresponding_class_id=main_class.id where teacher_id = {};".format(self.get_object().personal.id))
         serializer = ExamSerializer(queryset, many=True)
         return Response(data=serializer.data)
 
