@@ -8,6 +8,7 @@ class PersonSerializer(serializers.ModelSerializer):
         model = Person
         fields = '__all__'
 
+
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
@@ -57,12 +58,28 @@ class FourChoiceSerializer(serializers.ModelSerializer):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
+    choices = FourChoiceSerializer()
+
     class Meta:
         model = Question
-        fields = '__all__'
+        fields = ["question_text", "answer_text", "comments",
+                  "choices", "correct_choice", "issuer"]
+
+    def create(self, validated_data):
+        choices_data = validated_data.pop('choices')
+        four_choices = FourChoice.objects.create(**choices_data)
+        # validated_data["choices   "]=four_choices.id
+        print(type(four_choices))
+        validated_data["choices"]=four_choices
+        print(validated_data)
+        question = Question.objects.create( 
+            **validated_data)
+        # question.choices = choices
+        # question.save()
+        return question
+
 
 class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
         fields = '__all__'
-
