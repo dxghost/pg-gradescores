@@ -20,7 +20,7 @@ REVIEW_TYPE_CHOICES = [
 class Person(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=40)
-    national_no = models.AutoField(primary_key=True)
+    national_no = models.IntegerField(unique=True)
     date_of_birth = models.DateField()
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
 
@@ -41,7 +41,7 @@ class School(models.Model):
 
 
 class Student(models.Model):
-    national_no = models.OneToOneField(
+    personal = models.OneToOneField(
         Person, on_delete=models.CASCADE, primary_key=True)
     educational_id = models.IntegerField(unique=True)
     educational_grade = models.IntegerField(
@@ -49,7 +49,7 @@ class Student(models.Model):
 
 
 class Teacher(models.Model):
-    national_no = models.OneToOneField(
+    personal = models.OneToOneField(
         Person, on_delete=models.CASCADE, primary_key=True)
     teacher_id = models.IntegerField(unique=True)
     degrees = models.CharField(max_length=200)

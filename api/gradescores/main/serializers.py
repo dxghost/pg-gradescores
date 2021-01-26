@@ -14,7 +14,7 @@ class StudentSerializer(serializers.ModelSerializer):
         model = Student
         fields = '__all__'
         extra_kwargs = {
-            'national_no': {'read_only': False,
+            'personal': {'read_only': False,
                             'validators':[]},
         }
 
@@ -48,7 +48,7 @@ class ClassSerializer(serializers.ModelSerializer):
         # print(students_data)
         corresponding_class = Class.objects.create(**validated_data)
         for student_data in students_data:
-            corresponding_class.students.add(Student.objects.get(national_no=student_data["national_no"]))
+            corresponding_class.students.add(Student.objects.get(personal=student_data["personal"]))
         return corresponding_class
     
 
