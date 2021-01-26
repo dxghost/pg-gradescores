@@ -120,7 +120,7 @@ class ClassSerializer(serializers.ModelSerializer):
         fields = ["id", "course", "teacher", "school", "students","teacher_name","course_title","school_name"]
     
     def get_teacher_name(self,obj):
-        return obj.teacher.personal.first_name
+        return obj.teacher.personal.first_name + " " + obj.teacher.personal.last_name
     def get_course_title(self,obj):
         return obj.course.title
     def get_school_name(self,obj):
