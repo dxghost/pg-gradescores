@@ -22,6 +22,7 @@ class Person(models.Model):
     last_name = models.CharField(max_length=40)
     national_no = models.IntegerField(unique=True)
     date_of_birth = models.DateField()
+    # children = models.ManyToManyField(Person)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
 
 
@@ -31,13 +32,6 @@ class Address(models.Model):
     district = models.CharField(max_length=50)
     street = models.CharField(max_length=50)
     zipcode = models.CharField(max_length=10, null=False, unique=True)
-
-
-class School(models.Model):
-    name = models.CharField(max_length=50)
-    address = models.ForeignKey(Address, on_delete=models.CASCADE)
-    manager = models.ForeignKey(Person, on_delete=models.CASCADE)
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
 
 
 class Student(models.Model):
@@ -55,28 +49,14 @@ class Teacher(models.Model):
     degrees = models.CharField(max_length=200)
 
 
-class StudentParent(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    parent = models.ForeignKey(Person, on_delete=models.CASCADE)
+class School(models.Model):
+    name = models.CharField(max_length=50)
+    address = models.ForeignKey(Address, on_delete=models.CASCADE)
+    manager = models.ForeignKey(Person, on_delete=models.CASCADE)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    teachers = models.ManyToManyField(Teacher,blank=True,null=True)
+    students = models.ManyToManyField(Student,blank=True,null=True)
 
-    class Meta:
-        unique_together = (("student", "parent"),)
-
-
-class StudentSchool(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    school = models.ForeignKey(School, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = (("student", "school"),)
-
-
-class TeacherSchool(models.Model):
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-    school = models.ForeignKey(School, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = (("teacher", "school"),)
 
 
 class SchoolGrade(models.Model):

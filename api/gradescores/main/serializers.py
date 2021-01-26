@@ -40,10 +40,13 @@ class TeacherSerializer(serializers.ModelSerializer):
             'personal': {'read_only': False,
                             'validators':[]},
         }
+        extra_kwargs = {
+            'personal': {'read_only': False,
+                            'validators':[]},
+        }
     
     def create(self, validated_data):
         personal_data = validated_data.pop('personal')
-        print(personal_data)
 
         personal = Person.objects.create(**personal_data)
         validated_data["personal"]=personal 
@@ -52,16 +55,25 @@ class TeacherSerializer(serializers.ModelSerializer):
     
 
 
-class SchoolSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = School
-        fields = '__all__'
-
-
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
         fields = '__all__'
+
+
+class SchoolSerializer(serializers.ModelSerializer):
+    address = AddressSerializer()
+    class Meta:
+        model = School
+        fields = '__all__'
+    def create(self, validated_data):
+        address_data = validated_data.pop('address')
+
+        created_address = Address.objects.create(**address_data)
+        validated_data["address"]=created_address 
+        school = School.objects.create(**validated_data)
+        return school
+
 
 
 class ClassSerializer(serializers.ModelSerializer):
