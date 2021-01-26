@@ -202,6 +202,19 @@ class ExamSerializer(serializers.ModelSerializer):
 
 
 class SubmissionSerializer(serializers.ModelSerializer):
+    # TODO student,question,exam
+    student_name = serializers.SerializerMethodField(read_only=True)
+    question_title = serializers.SerializerMethodField(read_only=True)
+    exam_title = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Submission
         fields = '__all__'
+
+
+    def get_student_name(self,obj):
+        return obj.student.personal.first_name + " " + obj.student.personal.last_name
+    def get_question_title(self,obj):
+        return obj.question.question_text
+    def get_exam_title(self,obj):
+        return obj.exam.title
