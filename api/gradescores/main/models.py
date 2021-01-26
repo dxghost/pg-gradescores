@@ -80,12 +80,6 @@ class Class(models.Model):
 
 
 
-class Exam(models.Model):
-    title = models.CharField(max_length=60)
-    corresponding_class = models.ForeignKey(Class, on_delete=models.CASCADE)
-    exam_type = models.CharField(max_length=10, choices=EXAM_TYPE_CHOICES)
-    points = models.IntegerField()
-
 
 class FourChoice(models.Model):
     first_choice = models.CharField(max_length=100)
@@ -103,15 +97,20 @@ class Question(models.Model):
     issuer = models.ForeignKey(
         Teacher, on_delete=models.DO_NOTHING, null=True, blank=True)
 
+class Exam(models.Model):
+    title = models.CharField(max_length=60)
+    corresponding_class = models.ForeignKey(Class, on_delete=models.CASCADE)
+    exam_type = models.CharField(max_length=10, choices=EXAM_TYPE_CHOICES)
+    points = models.IntegerField()
+    question = models.ManyToManyField(Question,through="ExamQuestion")
 
 class ExamQuestion(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    points = models.IntegerField()
+    points = models.IntegerField(null=True)
 
     class Meta:
         unique_together = (("exam", "question"),)
-
 
 class Submission(models.Model):
     eq = models.ForeignKey(ExamQuestion, on_delete=models.CASCADE)
