@@ -38,6 +38,15 @@ schema_view = get_schema_view(
 
 router = routers.DefaultRouter()
 router.register(r'people', PersonViewset)
+router.register(r'students', StudentViewset)
+router.register(r'teachers', TeacherViewset)
+router.register(r'schools', SchoolViewset)
+router.register(r'addresses', AddressViewset)
+router.register(r'courses', CourseViewset)
+router.register(r'exams', ExamViewset)
+router.register(r'fourchoices', FourChoiceViewset)
+router.register(r'questions', QuestionViewset)
+router.register(r'submissions', SubmissionViewset)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
