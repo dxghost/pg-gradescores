@@ -72,7 +72,11 @@ class SchoolSerializer(serializers.ModelSerializer):
         validated_data["address"] = created_address
         school = School.objects.create(**validated_data)
         for teacher_data in teachers_data:
-            school.teachers.add(Teacher.objects.get(**teacher_data))
+            try:
+                ttr = Teacher.objects.get(**teacher_data)
+                school.teachers.add(ttr)
+            except:
+                pass
         return school
 
 
@@ -108,10 +112,19 @@ class StudentSerializer(serializers.ModelSerializer):
 
 class ClassSerializer(serializers.ModelSerializer):
     students = StudentBriefSerializer(many=True, required=False)
-
+    teacher_name = serializers.SerializerMethodField(read_only=True)
+    course_title = serializers.SerializerMethodField(read_only=True)
+    school_name = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Class
-        fields = ["id", "course", "teacher", "school", "students"]
+        fields = ["id", "course", "teacher", "school", "students","teacher_name","course_title","school_name"]
+    
+    def get_teacher_name(self,obj):
+        return obj.teacher.personal.first_name
+    def get_course_title(self,obj):
+        return obj.course.title
+    def get_school_name(self,obj):
+        return obj.school.name
 
     def create(self, validated_data):
         students_data = list(validated_data.pop('students'))
