@@ -13,7 +13,10 @@ class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = '__all__'
-
+        extra_kwargs = {
+            'national_no': {'read_only': False,
+                            'validators':[]},
+        }
 
 class TeacherSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,10 +37,20 @@ class AddressSerializer(serializers.ModelSerializer):
 
 
 class ClassSerializer(serializers.ModelSerializer):
+    students = StudentSerializer(many=True,required=False)
+
     class Meta:
         model = Class
-        fields = '__all__'
+        fields = ["id","course", "teacher", "school", "students"]
 
+    def create(self, validated_data):
+        students_data = list(validated_data.pop('students'))
+        # print(students_data)
+        corresponding_class = Class.objects.create(**validated_data)
+        for student_data in students_data:
+            corresponding_class.students.add(Student.objects.get(national_no=student_data["national_no"]))
+        return corresponding_class
+    
 
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -70,9 +83,9 @@ class QuestionSerializer(serializers.ModelSerializer):
         four_choices = FourChoice.objects.create(**choices_data)
         # validated_data["choices   "]=four_choices.id
         print(type(four_choices))
-        validated_data["choices"]=four_choices
+        validated_data["choices"] = four_choices
         print(validated_data)
-        question = Question.objects.create( 
+        question = Question.objects.create(
             **validated_data)
         # question.choices = choices
         # question.save()

@@ -92,13 +92,13 @@ class Course(models.Model):
 
 
 class Class(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
-
+    students = models.ManyToManyField(Student)
     class Meta:
-        unique_together = (("student", "teacher", "course", "school"),)
+        unique_together = (("teacher", "course", "school"),)
+
 
 
 class Exam(models.Model):
