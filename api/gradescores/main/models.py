@@ -113,9 +113,10 @@ class ExamQuestion(models.Model):
         unique_together = (("exam", "question"),)
 
 class Submission(models.Model):
-    eq = models.ForeignKey(ExamQuestion, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    examinar = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    examinar = models.ForeignKey(Teacher, on_delete=models.CASCADE,null=True)
     points = models.IntegerField()
     answer = models.CharField(max_length=500, null=False)
     sts = models.CharField(max_length=10, choices=REVIEW_TYPE_CHOICES)
@@ -123,7 +124,7 @@ class Submission(models.Model):
         choices=[(i, i) for i in range(1, 5)])
 
     class Meta:
-        unique_together = (("student", "eq"),)
+        unique_together = (("student", "exam","question"),)
 
 
 class ExamEvaluation(models.Model):

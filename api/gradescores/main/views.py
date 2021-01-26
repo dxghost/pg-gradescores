@@ -18,7 +18,7 @@ class TeacherViewset(viewsets.ModelViewSet):
     serializer_class = TeacherSerializer
 
     @action(detail=True,url_path='exams')
-    def open(self, request, *args, **kwargs):
+    def get_exams(self, request, *args, **kwargs):
          # your rest of code and response
          queryset = Exam.objects.filter(corresponding_class__teacher = self.get_object())
          serializer = ExamSerializer(queryset, many=True)
@@ -50,6 +50,13 @@ class CourseViewset(viewsets.ModelViewSet):
 class ExamViewset(viewsets.ModelViewSet):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
+
+    @action(detail=True,url_path='submissions')
+    def get_submissions(self, request, *args, **kwargs):
+         # your rest of code and response
+         queryset = Submission.objects.filter(exam = self.get_object())
+         serializer = SubmissionSerializer(queryset, many=True)
+         return Response(data=serializer.data)
 
 class FourChoiceViewset(viewsets.ModelViewSet):
     queryset = FourChoice.objects.all()
