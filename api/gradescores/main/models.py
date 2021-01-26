@@ -121,7 +121,8 @@ class Question(models.Model):
     comments = models.CharField(max_length=200)
     choices = models.ForeignKey(FourChoice, on_delete=models.DO_NOTHING)
     correct_choice = models.IntegerField(choices=[(i, i) for i in range(1, 5)])
-    issuer = models.ForeignKey(Teacher, on_delete=models.DO_NOTHING)
+    issuer = models.ForeignKey(
+        Teacher, on_delete=models.DO_NOTHING, null=True, blank=True)
 
 
 class ExamQuestion(models.Model):
